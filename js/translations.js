@@ -10,6 +10,7 @@ const T = {
   "nav_chalet":        { ar: "الشاليه",               en: "Chalet" },
   "nav_salon":         { ar: "الكوافير",              en: "Salon" },
   "nav_photography":   { ar: "حجز التصوير",           en: "Booking" },
+  "nav_about":         { ar: "من نحن",                en: "About" },
   "nav_admin":         { ar: "لوحة التحكم",           en: "Dashboard" },
   "nav_logout":        { ar: "تسجيل الخروج",          en: "Logout" },
   "nav_login":         { ar: "دخول",                  en: "Login" },
@@ -85,6 +86,13 @@ const T = {
   "modal_error_slot":  { ar: "هذه الساعة محجوزة بالفعل", en: "This slot is already booked" },
   "modal_error_server":{ ar: "تعذر الاتصال بالسيرفر. حاول مرة أخرى.", en: "Connection failed. Try again." },
 
+  // === Pricing ===
+  "price_label":       { ar: "السعر",                  en: "Price" },
+  "price_loading":     { ar: "جاري تحميل السعر...",   en: "Loading price..." },
+  "price_per_hour":    { ar: "/ساعة",                  en: "/hour" },
+  "price_total":       { ar: "السعر الإجمالي",        en: "Total Price" },
+  "price_sar":         { ar: "ريال",                   en: "SAR" },
+
   // === Confirmation ===
   "confirm_title":     { ar: "تم استلام طلب الحجز!",  en: "Booking Request Received!" },
   "confirm_msg":       { ar: "تم إرسال طلبك بنجاح. سيتم مراجعته من قبل الإدارة والتأكيد عبر واتساب.",
@@ -95,12 +103,57 @@ const T = {
   "confirm_wa":        { ar: "تأكيد عبر واتساب",      en: "Confirm via WhatsApp" },
   "confirm_close":     { ar: "إغلاق",                 en: "Close" },
 
+  // === Gallery ===
+  "gallery_title":     { ar: "معرض الصور",            en: "Gallery" },
+  "gallery_chalet":    { ar: "معرض الشاليه",          en: "Chalet Gallery" },
+  "gallery_photo":     { ar: "معرض التصوير",          en: "Photography Gallery" },
+  "gallery_salon":     { ar: "معرض خدمات التجميل",    en: "Salon Gallery" },
+  "gallery_of":        { ar: "من",                     en: "of" },
+  "gallery_zoom_in":   { ar: "تكبير",                  en: "Zoom in" },
+  "gallery_zoom_out":  { ar: "تصغير",                  en: "Zoom out" },
+  "gallery_close":     { ar: "إغلاق",                  en: "Close" },
+  "gallery_prev":      { ar: "السابق",                 en: "Previous" },
+  "gallery_next":      { ar: "التالي",                 en: "Next" },
+
+  // === About Page ===
+  "about_title":       { ar: "من نحن",                en: "About Us" },
+  "about_story_title": { ar: "قصتنا",                 en: "Our Story" },
+  "about_story":       { ar: "تأسست Marshmallow لتكون الوجهة الأولى للمناسبات الأنيقة والتصوير الاحترافي في أجواء فاخرة ومميزة. نؤمن بأن كل لحظة تستحق أن تُخلّد بأجمل صورة، وكل مناسبة تستحق أجواء استثنائية.",
+                         en: "Marshmallow was founded to be the premier destination for elegant events and professional photography in a luxurious atmosphere. We believe every moment deserves to be captured beautifully, and every occasion deserves an exceptional setting." },
+  "about_vision_title": { ar: "رؤيتنا",               en: "Our Vision" },
+  "about_vision":      { ar: "أن نكون الخيار الأول للمناسبات والتصوير في المنطقة، من خلال تقديم تجربة فريدة تجمع بين الفخامة والاحترافية.",
+                         en: "To be the first choice for events and photography in the region, delivering a unique experience that combines luxury and professionalism." },
+  "about_mission_title":{ ar: "رسالتنا",              en: "Our Mission" },
+  "about_mission":     { ar: "تقديم خدمات تصوير ومناسبات بأعلى معايير الجودة، مع الاهتمام بأدق التفاصيل لضمان تجربة لا تُنسى لعملائنا.",
+                         en: "To deliver event and photography services at the highest quality standards, paying attention to every detail to ensure an unforgettable experience for our clients." },
+  "about_why_title":   { ar: "لماذا مارشميلو؟",       en: "Why Marshmallow?" },
+  "about_why_1_title": { ar: "شاليه فاخر",            en: "Luxurious Chalet" },
+  "about_why_1":       { ar: "تصميم داخلي أنيق وتجهيزات متكاملة", en: "Elegant interior design and complete facilities" },
+  "about_why_2_title": { ar: "تصوير احترافي",          en: "Professional Photography" },
+  "about_why_2":       { ar: "استوديو مجهز بأحدث المعدات والإضاءة", en: "Studio equipped with the latest equipment and lighting" },
+  "about_why_3_title": { ar: "خدمات تجميل شاملة",      en: "Complete Beauty Services" },
+  "about_why_3":       { ar: "كوافير ومركز تجميل بأيدي خبيرات", en: "Salon and beauty center by expert professionals" },
+  "about_why_4_title": { ar: "أسعار منافسة",           en: "Competitive Pricing" },
+  "about_why_4":       { ar: "نظام أسعار ديناميكي يناسب جميع الميزانيات", en: "Dynamic pricing system to suit all budgets" },
+  "about_services_title":{ ar: "خدماتنا",              en: "Our Services" },
+  "about_book_now":    { ar: "احجز الآن",             en: "Book Now" },
+  "about_stats_sessions":{ ar: "جلسة تصوير+",         en: "+ Photo Sessions" },
+  "about_stats_clients":{ ar: "عميل سعيد+",           en: "+ Happy Clients" },
+  "about_stats_services":{ ar: "خدمة رئيسية",         en: "Main Services" },
+  "about_stats_rating":{ ar: "تقييم العملاء",          en: "Client Rating" },
+
+  // === Testimonials ===
+  "testimonials_title":{ ar: "آراء عملائنا",          en: "What Our Clients Say" },
+  "testimonials_empty":{ ar: "لا توجد تقييمات بعد",   en: "No testimonials yet" },
+
   // === Admin ===
   "admin_title":       { ar: "لوحة التحكم",           en: "Admin Dashboard" },
   "admin_overview":    { ar: "نظرة عامة",              en: "Overview" },
   "admin_chalet_bk":   { ar: "حجوزات الشاليه",        en: "Chalet Bookings" },
   "admin_photo_bk":    { ar: "حجوزات التصوير",        en: "Photography Bookings" },
   "admin_photographers":{ ar: "المصورون",              en: "Photographers" },
+  "admin_testimonials":{ ar: "آراء العملاء",          en: "Testimonials" },
+  "admin_data_mgmt":   { ar: "إدارة البيانات",         en: "Data Management" },
   "admin_total_chalet":{ ar: "حجوزات الشاليه",        en: "Chalet Bookings" },
   "admin_total_photo": { ar: "حجوزات التصوير",        en: "Photo Bookings" },
   "admin_confirmed":   { ar: "مؤكدة",                 en: "Confirmed" },
@@ -116,6 +169,28 @@ const T = {
   "admin_add_btn":     { ar: "إضافة",                 en: "Add" },
   "admin_no_photo":    { ar: "لا يوجد مصورون مسجلون", en: "No photographers registered" },
 
+  // === Data Management ===
+  "admin_export_chalet":{ ar: "تصدير حجوزات الشاليه", en: "Export Chalet Bookings" },
+  "admin_export_photo":{ ar: "تصدير حجوزات التصوير",  en: "Export Photo Bookings" },
+  "admin_export_all":  { ar: "تصدير كل البيانات",      en: "Export All Data" },
+  "admin_backup":      { ar: "إنشاء نسخة احتياطية",   en: "Create Backup" },
+  "admin_backup_history":{ ar: "سجل النسخ الاحتياطية", en: "Backup History" },
+  "admin_backup_success":{ ar: "تم إنشاء النسخة الاحتياطية بنجاح!", en: "Backup created successfully!" },
+  "admin_backup_name": { ar: "اسم النسخة",            en: "Backup Name" },
+  "admin_backup_date": { ar: "تاريخ الإنشاء",          en: "Created Date" },
+  "admin_backup_link": { ar: "رابط الملف",            en: "Drive Link" },
+  "admin_exporting":   { ar: "جاري التصدير...",        en: "Exporting..." },
+  "admin_backing_up":  { ar: "جاري إنشاء النسخة الاحتياطية...", en: "Creating backup..." },
+
+  // === Testimonials Management ===
+  "admin_test_name":   { ar: "الاسم",                 en: "Name" },
+  "admin_test_rating": { ar: "التقييم",               en: "Rating" },
+  "admin_test_comment":{ ar: "التعليق",               en: "Comment" },
+  "admin_test_approved":{ ar: "الحالة",               en: "Status" },
+  "admin_test_approve":{ ar: "اعتماد",                en: "Approve" },
+  "admin_test_reject": { ar: "رفض",                   en: "Reject" },
+  "admin_no_testimonials":{ ar: "لا توجد تقييمات",    en: "No testimonials" },
+
   // === Table Headers ===
   "th_date":           { ar: "التاريخ",               en: "Date" },
   "th_time":           { ar: "الوقت",                 en: "Time" },
@@ -123,6 +198,7 @@ const T = {
   "th_customer":       { ar: "العميل",                en: "Customer" },
   "th_phone":          { ar: "الهاتف",                en: "Phone" },
   "th_guests":         { ar: "الأشخاص",               en: "Guests" },
+  "th_price":          { ar: "السعر",                 en: "Price" },
   "th_status":         { ar: "الحالة",                en: "Status" },
   "th_actions":        { ar: "إجراءات",               en: "Actions" },
   "th_photographer":   { ar: "المصوّر",               en: "Photographer" },
@@ -140,6 +216,8 @@ const T = {
   "btn_confirm":       { ar: "تأكيد",                 en: "Confirm" },
   "btn_cancel":        { ar: "إلغاء",                 en: "Cancel" },
   "btn_delete":        { ar: "حذف",                   en: "Delete" },
+  "btn_approve":       { ar: "اعتماد",                en: "Approve" },
+  "btn_reject":        { ar: "رفض",                   en: "Reject" },
   "btn_filter_all":    { ar: "الكل",                  en: "All" },
   "btn_filter_pending":{ ar: "قيد الانتظار",           en: "Pending" },
   "btn_filter_confirmed":{ ar: "مؤكد",                en: "Confirmed" },
@@ -159,5 +237,7 @@ const T = {
   "time_pm":           { ar: "م",                     en: "PM" },
 
   // === Confirm Delete / Cancel ===
-  "confirm_delete":    { ar: "هل أنت متأكد من حذف هذا الحجز؟", en: "Are you sure you want to delete this booking?" }
+  "confirm_delete":    { ar: "هل أنت متأكد من حذف هذا الحجز؟", en: "Are you sure you want to delete this booking?" },
+  "confirm_approve":   { ar: "هل تريد اعتماد هذا التقييم؟", en: "Approve this testimonial?" },
+  "confirm_reject":    { ar: "هل تريد رفض هذا التقييم؟", en: "Reject this testimonial?" }
 };

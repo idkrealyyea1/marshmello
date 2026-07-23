@@ -22,10 +22,12 @@ const API = {
     return res.json();
   },
 
+  // === Auth ===
   login(username, password) {
     return this.post("login", { username, password });
   },
 
+  // === Availability ===
   getAvailability(type, year, month) {
     return this.get("getAvailability", { type, year, month });
   },
@@ -34,6 +36,12 @@ const API = {
     return this.get("getDayDetails", { type, date });
   },
 
+  // === Pricing ===
+  getPrice(service, bookingType, dayOfWeek) {
+    return this.get("getPrice", { service, bookingType, dayOfWeek });
+  },
+
+  // === Bookings ===
   submitChaletBooking(data) {
     return this.post("submitChaletBooking", data);
   },
@@ -60,6 +68,7 @@ const API = {
     return this.post("deleteBooking", { bookingId, type });
   },
 
+  // === Photographers ===
   createPhotographer(data) {
     return this.post("createPhotographer", data);
   },
@@ -74,5 +83,36 @@ const API = {
 
   getMyBookings(username) {
     return this.get("getMyBookings", { username });
+  },
+
+  // === Testimonials ===
+  getTestimonials() {
+    return this.get("getTestimonials");
+  },
+
+  updateTestimonialStatus(id, approved) {
+    return this.post("updateTestimonialStatus", { id, approved });
+  },
+
+  deleteTestimonial(id) {
+    return this.post("deleteTestimonial", { id });
+  },
+
+  // === Data Export ===
+  exportBookings(type) {
+    return this.get("exportBookings", { type });
+  },
+
+  exportAllData() {
+    return this.get("exportAllData");
+  },
+
+  // === Backup ===
+  createBackup() {
+    return this.post("createBackup");
+  },
+
+  getBackupHistory() {
+    return this.get("getBackupHistory");
   }
 };

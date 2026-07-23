@@ -10,7 +10,7 @@
 <body>
   <header class="site-header"></header>
 
-  <!-- Not logged in state -->
+  <!-- Not logged in -->
   <main class="page-container" id="loginRequired">
     <div class="section-header">
       <h1 data-t="photo_title">حجز جلسة تصوير</h1>
@@ -22,7 +22,7 @@
     </div>
   </main>
 
-  <!-- Logged in state -->
+  <!-- Logged in -->
   <main class="page-container hidden" id="photographerPanel">
     <div class="section-header">
       <h1 data-t="photo_title">حجز جلسة تصوير</h1>
@@ -40,13 +40,17 @@
       <div class="admin-panel-header">
         <h3 data-t="photo_my_bookings">حجوزاتي القادمة</h3>
       </div>
-      <div id="myBookingsContainer">
-        <div class="spinner"></div>
-      </div>
+      <div id="myBookingsContainer"><div class="spinner"></div></div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="gallery-section">
+      <h2 class="gallery-section-title" data-t="gallery_photo">معرض التصوير</h2>
+      <div id="photoGallery"></div>
     </div>
   </main>
 
-  <!-- Time Selection Modal -->
+  <!-- Time Modal -->
   <div class="modal-overlay" id="photoDayModal">
     <div class="modal">
       <div class="modal-header">
@@ -54,14 +58,18 @@
         <button class="modal-close" onclick="hideModal('photoDayModal')">&times;</button>
       </div>
       <div class="modal-body">
-        <div id="photoSlotsContainer">
-          <div class="spinner"></div>
+        <div id="photoSlotsContainer"><div class="spinner"></div></div>
+        <div id="photoPriceDisplay" class="hidden">
+          <div class="price-display">
+            <span class="price-label" data-t="price_label">السعر</span>
+            <span><span class="price-value" id="photoPriceValue">0</span> <span class="price-currency" data-t="price_sar">ريال</span> <span class="price-currency" data-t="price_per_hour">/ساعة</span></span>
+          </div>
         </div>
         <div id="photoBookingForm" class="hidden">
           <div style="width:60px;height:1px;background:var(--gold);margin:16px auto;"></div>
           <div class="form-group">
             <label class="form-label" data-t="modal_notes_photo">ملاحظات</label>
-            <textarea class="form-input" id="photoNotes" data-t-ph="modal_notes_photo_ph" placeholder="أي ملاحظات حول الجلسة..."></textarea>
+            <textarea class="form-input" id="photoNotes" data-t-ph="modal_notes_photo_ph" placeholder="أي ملاحظات..."></textarea>
           </div>
           <button class="btn btn-primary btn-block" id="submitPhotoBtn" onclick="submitPhotoBooking()">
             <span data-t="modal_confirm">تأكيد الحجز</span>
@@ -71,7 +79,7 @@
     </div>
   </div>
 
-  <!-- Confirmation Modal -->
+  <!-- Confirm Modal -->
   <div class="modal-overlay" id="photoConfirmModal">
     <div class="modal">
       <div class="modal-body">
@@ -98,12 +106,15 @@
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/calendar.js"></script>
+  <script src="js/galleryData.js"></script>
+  <script src="js/gallery.js"></script>
   <script>
     initPage("photography");
 
     let photoSelectedDate = null;
     let photoSelectedSlot = null;
     let photoCalendar = null;
+    let photoCurrentPrice = 0;
 
     if (Auth.isLoggedIn() && Auth.isPhotographer()) {
       document.getElementById("loginRequired").classList.add("hidden");
@@ -114,17 +125,30 @@
         type: "photography",
         onDayClick: openPhotoDayModal
       });
-
+      createGallery({ containerId: "photoGallery", category: "photography", columns: 3 });
       loadMyBookings();
     }
 
     async function openPhotoDayModal(date) {
       photoSelectedDate = date;
       photoSelectedSlot = null;
+      photoCurrentPrice = 0;
       document.getElementById("photoBookingForm").classList.add("hidden");
+      document.getElementById("photoPriceDisplay").classList.add("hidden");
       document.getElementById("photoModalDate").textContent = formatDateAr(date);
       document.getElementById("photoSlotsContainer").innerHTML = '<div class="spinner"></div>';
       showModal("photoDayModal");
+
+      /* Fetch price */
+      const dayOfWeek = new Date(date).getDay();
+      try {
+        const priceResult = await API.getPrice("photography", "hour", dayOfWeek);
+        if (priceResult.success && priceResult.price) {
+          photoCurrentPrice = parseFloat(priceResult.price);
+          document.getElementById("photoPriceValue").textContent = photoCurrentPrice;
+          document.getElementById("photoPriceDisplay").classList.remove("hidden");
+        }
+      } catch (err) { /* optional */ }
 
       try {
         const result = await API.getDayDetails("photography", date);
@@ -144,21 +168,15 @@
       const container = document.getElementById("photoSlotsContainer");
       const bookedSet = new Set(bookedSlots);
       let html = '<div class="slots-container">';
-
       for (let h = 9; h < 24; h++) {
         const slot = `${String(h).padStart(2, "0")}:00`;
         const isBooked = bookedSet.has(slot);
         const period = h < 12 ? t("time_am") : t("time_pm");
         const h12 = h > 12 ? h - 12 : h;
-        const displayTime = `${h12}:00 ${period}`;
-
-        html += `<div class="time-slot ${isBooked ? 'booked' : 'available'}" 
-                      data-slot="${slot}"
+        html += `<div class="time-slot ${isBooked ? 'booked' : 'available'}" data-slot="${slot}"
                       ${isBooked ? '' : `onclick="selectPhotoSlot(this, '${slot}')"`}>
-                    ${displayTime}
-                  </div>`;
+                    ${h12}:00 ${period}</div>`;
       }
-
       html += '</div>';
       container.innerHTML = html;
     }
@@ -171,23 +189,17 @@
     }
 
     async function submitPhotoBooking() {
-      if (!photoSelectedDate || !photoSelectedSlot) {
-        showAlert("photoAlert", "error", t("modal_error_select"));
-        return;
-      }
-
+      if (!photoSelectedDate || !photoSelectedSlot) { showAlert("photoAlert", "error", t("modal_error_select")); return; }
       const btn = document.getElementById("submitPhotoBtn");
       btn.disabled = true;
       btn.querySelector("span").textContent = t("modal_sending");
 
       try {
         const result = await API.submitPhotographyBooking({
-          photographerUsername: Auth.getUsername(),
-          date: photoSelectedDate,
-          hour: photoSelectedSlot,
-          notes: document.getElementById("photoNotes").value.trim()
+          photographerUsername: Auth.getUsername(), date: photoSelectedDate,
+          hour: photoSelectedSlot, notes: document.getElementById("photoNotes").value.trim(),
+          price: photoCurrentPrice
         });
-
         if (result.success) {
           hideModal("photoDayModal");
           showModal("photoConfirmModal");
@@ -196,10 +208,7 @@
         } else {
           showAlert("photoAlert", "error", result.message || t("alert_error"));
         }
-      } catch (err) {
-        showAlert("photoAlert", "error", t("modal_error_server"));
-      }
-
+      } catch (err) { showAlert("photoAlert", "error", t("modal_error_server")); }
       btn.disabled = false;
       btn.querySelector("span").textContent = t("modal_confirm");
     }
@@ -210,24 +219,13 @@
         const result = await API.getMyBookings(Auth.getUsername());
         if (result.success && result.bookings && result.bookings.length > 0) {
           let html = '<div class="admin-table-wrapper"><table class="admin-table">';
-          html += `<thead><tr>
-            <th>${t("th_date")}</th>
-            <th>${t("th_time")}</th>
-            <th>${t("th_status")}</th>
-            <th>${t("th_notes")}</th>
-          </tr></thead><tbody>`;
-
+          html += `<thead><tr><th>${t("th_date")}</th><th>${t("th_time")}</th><th>${t("th_price")}</th><th>${t("th_status")}</th><th>${t("th_notes")}</th></tr></thead><tbody>`;
           result.bookings.forEach(b => {
-            const statusClass = b.status;
-            const statusText = t("status_" + b.status);
-            html += `<tr>
-              <td>${b.date}</td>
-              <td>${b.hour}</td>
-              <td><span class="status-badge ${statusClass}"><span class="dot"></span>${statusText}</span></td>
-              <td>${b.notes || '-'}</td>
-            </tr>`;
+            const priceText = b.price ? `${b.price} ${t("price_sar")}` : '-';
+            html += `<tr><td>${b.date}</td><td>${b.hour}</td><td>${priceText}</td>
+              <td><span class="status-badge ${b.status}"><span class="dot"></span>${t("status_" + b.status)}</span></td>
+              <td>${b.notes || '-'}</td></tr>`;
           });
-
           html += '</tbody></table></div>';
           container.innerHTML = html;
         } else {

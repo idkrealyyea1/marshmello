@@ -43,6 +43,12 @@
         <a href="#photographers" onclick="showSection('photographers')">
           <span class="icon">👥</span> <span data-t="admin_photographers">المصورون</span>
         </a>
+        <a href="#testimonials" onclick="showSection('testimonials')">
+          <span class="icon">⭐</span> <span data-t="admin_testimonials">آراء العملاء</span>
+        </a>
+        <a href="#data-mgmt" onclick="showSection('data-mgmt')">
+          <span class="icon">📁</span> <span data-t="admin_data_mgmt">إدارة البيانات</span>
+        </a>
       </nav>
     </aside>
 
@@ -175,6 +181,53 @@
         </div>
       </div>
 
+      <!-- Testimonials Section -->
+      <div class="admin-section" id="section-testimonials">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h3 data-t="admin_testimonials">آراء العملاء</h3>
+          </div>
+          <div id="testimonialsList">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Management Section -->
+      <div class="admin-section" id="section-data-mgmt">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h3 data-t="admin_data_mgmt">إدارة البيانات</h3>
+          </div>
+          <div class="data-mgmt-grid">
+            <button class="data-mgmt-btn" onclick="exportCSV('chalet')">
+              <span class="icon">📊</span>
+              <span data-t="admin_export_chalet">تصدير حجوزات الشاليه</span>
+            </button>
+            <button class="data-mgmt-btn" onclick="exportCSV('photography')">
+              <span class="icon">📊</span>
+              <span data-t="admin_export_photo">تصدير حجوزات التصوير</span>
+            </button>
+            <button class="data-mgmt-btn" onclick="exportAllCSV()">
+              <span class="icon">📦</span>
+              <span data-t="admin_export_all">تصدير كل البيانات</span>
+            </button>
+            <button class="data-mgmt-btn" onclick="runBackup()" id="backupBtn">
+              <span class="icon">💾</span>
+              <span data-t="admin_backup">إنشاء نسخة احتياطية</span>
+            </button>
+          </div>
+          <div id="backupAlert" class="mt-2"></div>
+
+          <div class="mt-3">
+            <h4 data-t="admin_backup_history">سجل النسخ الاحتياطية</h4>
+            <div id="backupHistory" class="mt-2">
+              <p style="opacity:0.5;padding:12px;" data-t="admin_no_data">جاري التحميل...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -202,6 +255,8 @@
       if (name === "chalet-bookings") loadChaletBookings();
       if (name === "photo-bookings") loadPhotoBookings();
       if (name === "photographers") loadPhotographers();
+      if (name === "testimonials") loadTestimonials();
+      if (name === "data-mgmt") loadBackupHistory();
     }
 
     // === Dashboard ===
@@ -275,13 +330,14 @@
           html += `<thead><tr>
             <th>${t("th_date")}</th><th>${t("th_time")}</th><th>${t("th_type")}</th>
             <th>${t("th_customer")}</th><th>${t("th_phone")}</th><th>${t("th_guests")}</th>
-            <th>${t("th_status")}</th><th>${t("th_actions")}</th>
+            <th>${t("th_price")}</th><th>${t("th_status")}</th><th>${t("th_actions")}</th>
           </tr></thead><tbody>`;
 
           result.bookings.forEach(b => {
             const statusClass = b.status;
             const statusText = t("status_" + b.status);
             const typeText = b.type === "overnight" ? t("type_overnight") : t("type_day");
+            const priceText = b.price ? `${b.price} ${t("price_sar")}` : '-';
             html += `<tr>
               <td>${b.date}</td>
               <td style="font-family:var(--font-english-body)">${b.hour}</td>
@@ -289,6 +345,7 @@
               <td>${b.customerName}</td>
               <td style="font-family:var(--font-english-body);direction:ltr;text-align:right">${b.phone}</td>
               <td>${b.guests}</td>
+              <td style="font-family:var(--font-english-body)">${priceText}</td>
               <td><span class="status-badge ${statusClass}"><span class="dot"></span>${statusText}</span></td>
               <td>
                 <div class="table-actions">
@@ -330,16 +387,18 @@
           let html = '<div class="admin-table-wrapper"><table class="admin-table">';
           html += `<thead><tr>
             <th>${t("th_date")}</th><th>${t("th_time")}</th><th>${t("th_photographer")}</th>
-            <th>${t("th_status")}</th><th>${t("th_notes")}</th><th>${t("th_actions")}</th>
+            <th>${t("th_price")}</th><th>${t("th_status")}</th><th>${t("th_notes")}</th><th>${t("th_actions")}</th>
           </tr></thead><tbody>`;
 
           result.bookings.forEach(b => {
             const statusClass = b.status;
             const statusText = t("status_" + b.status);
+            const priceText = b.price ? `${b.price} ${t("price_sar")}` : '-';
             html += `<tr>
               <td>${b.date}</td>
               <td style="font-family:var(--font-english-body)">${b.hour}</td>
               <td>${b.photographerUsername}</td>
+              <td style="font-family:var(--font-english-body)">${priceText}</td>
               <td><span class="status-badge ${statusClass}"><span class="dot"></span>${statusText}</span></td>
               <td>${b.notes || '-'}</td>
               <td>
@@ -448,6 +507,162 @@
         }
       } catch (err) {
         alert(t("alert_server"));
+      }
+    }
+
+    // === Testimonials Management ===
+    async function loadTestimonials() {
+      const container = document.getElementById("testimonialsList");
+      container.innerHTML = '<div class="spinner"></div>';
+      try {
+        const result = await API.getTestimonials();
+        if (result.success && result.testimonials && result.testimonials.length > 0) {
+          let html = '<div class="admin-table-wrapper"><table class="admin-table">';
+          html += `<thead><tr>
+            <th>${t("admin_test_name")}</th><th>${t("admin_test_rating")}</th>
+            <th>${t("admin_test_comment")}</th><th>${t("admin_test_approved")}</th>
+            <th>${t("th_actions")}</th>
+          </tr></thead><tbody>`;
+
+          result.testimonials.forEach(test => {
+            const stars = "★".repeat(test.rating) + "☆".repeat(5 - test.rating);
+            const statusText = test.approved ? t("status_confirmed") : t("status_pending");
+            const statusClass = test.approved ? "confirmed" : "pending";
+            html += `<tr>
+              <td>${test.name}</td>
+              <td style="color:var(--gold)">${stars}</td>
+              <td>${test.comment.substring(0, 60)}${test.comment.length > 60 ? '...' : ''}</td>
+              <td><span class="status-badge ${statusClass}"><span class="dot"></span>${statusText}</span></td>
+              <td>
+                <div class="table-actions">
+                  ${!test.approved ? `<button class="btn-confirm" onclick="approveTestimonial('${test.id}')">${t("btn_approve")}</button>` : ''}
+                  ${test.approved ? `<button class="btn-cancel" onclick="rejectTestimonial('${test.id}')">${t("btn_reject")}</button>` : ''}
+                  <button class="btn-delete" onclick="deleteTestimonialAction('${test.id}')">${t("btn_delete")}</button>
+                </div>
+              </td>
+            </tr>`;
+          });
+
+          html += '</tbody></table></div>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = `<p style="opacity:0.5;text-align:center;padding:30px;">${t("admin_no_testimonials")}</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="alert alert-error">${t("alert_server")}</div>`;
+      }
+    }
+
+    async function approveTestimonial(id) {
+      if (!confirm(t("confirm_approve"))) return;
+      try {
+        await API.updateTestimonialStatus(id, true);
+        loadTestimonials();
+      } catch (err) { alert(t("alert_error")); }
+    }
+
+    async function rejectTestimonial(id) {
+      if (!confirm(t("confirm_reject"))) return;
+      try {
+        await API.updateTestimonialStatus(id, false);
+        loadTestimonials();
+      } catch (err) { alert(t("alert_error")); }
+    }
+
+    async function deleteTestimonialAction(id) {
+      if (!confirm(t("confirm_delete"))) return;
+      try {
+        await API.deleteTestimonial(id);
+        loadTestimonials();
+      } catch (err) { alert(t("alert_error")); }
+    }
+
+    // === Data Export ===
+    async function exportCSV(type) {
+      try {
+        const result = await API.exportBookings(type);
+        if (result.success && result.data) {
+          downloadCSV(result.data, `marshmallow_${type}_bookings.csv`);
+        }
+      } catch (err) { alert(t("alert_error")); }
+    }
+
+    async function exportAllCSV() {
+      try {
+        const result = await API.exportAllData();
+        if (result.success && result.sheets) {
+          Object.entries(result.sheets).forEach(([name, data]) => {
+            if (data && data.length > 0) {
+              setTimeout(() => downloadCSV(data, `marshmallow_${name}.csv`), 200);
+            }
+          });
+        }
+      } catch (err) { alert(t("alert_error")); }
+    }
+
+    function downloadCSV(rows, filename) {
+      if (!rows || rows.length === 0) return;
+      const headers = Object.keys(rows[0]);
+      const csvContent = [
+        headers.join(","),
+        ...rows.map(row => headers.map(h => `"${(row[h] || '').toString().replace(/"/g, '""')}"`).join(","))
+      ].join("\n");
+
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    }
+
+    // === Backup ===
+    async function runBackup() {
+      const btn = document.getElementById("backupBtn");
+      btn.disabled = true;
+      btn.querySelector("span:last-child").textContent = t("admin_backing_up");
+
+      try {
+        const result = await API.createBackup();
+        if (result.success) {
+          showAlert("backupAlert", "success", t("admin_backup_success"));
+          loadBackupHistory();
+        } else {
+          showAlert("backupAlert", "error", result.message || t("alert_error"));
+        }
+      } catch (err) {
+        showAlert("backupAlert", "error", t("alert_server"));
+      }
+
+      btn.disabled = false;
+      btn.querySelector("span:last-child").textContent = t("admin_backup");
+    }
+
+    async function loadBackupHistory() {
+      const container = document.getElementById("backupHistory");
+      try {
+        const result = await API.getBackupHistory();
+        if (result.success && result.backups && result.backups.length > 0) {
+          let html = '<div class="admin-table-wrapper"><table class="backup-table">';
+          html += `<thead><tr>
+            <th>${t("admin_backup_name")}</th><th>${t("admin_backup_date")}</th><th>${t("admin_backup_link")}</th>
+          </tr></thead><tbody>`;
+
+          result.backups.forEach(b => {
+            html += `<tr>
+              <td>${b.name}</td>
+              <td>${b.date}</td>
+              <td>${b.link ? `<a href="${b.link}" target="_blank">🔗</a>` : '-'}</td>
+            </tr>`;
+          });
+
+          html += '</tbody></table></div>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = `<p style="opacity:0.5;padding:12px;">${t("admin_no_data")}</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<p style="opacity:0.5;padding:12px;">${t("alert_server")}</p>`;
       }
     }
 

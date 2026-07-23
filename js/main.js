@@ -148,6 +148,7 @@ function renderHeader(activePage) {
         <a href="index.html" class="${activePage === 'home' ? 'nav-active' : ''}">${t("nav_home")}</a>
         <a href="chalet.html" class="${activePage === 'chalet' ? 'nav-active' : ''}">${t("nav_chalet")}</a>
         <a href="salon.html" class="${activePage === 'salon' ? 'nav-active' : ''}">${t("nav_salon")}</a>
+        <a href="about.html" class="${activePage === 'about' ? 'nav-active' : ''}">${t("nav_about")}</a>
         ${navLinks.map(l => `<a href="${l.href}" class="${activePage === l.key ? 'nav-active' : ''}" ${l.onclick ? `onclick="${l.onclick}"` : ''}>${l.label}</a>`).join("")}
         <a href="#" class="lang-toggle" onclick="${langOnclick}">${langLabel}</a>
       </nav>
@@ -170,6 +171,7 @@ function renderFooter() {
         <a href="index.html">${t("nav_home")}</a>
         <a href="chalet.html">${t("nav_chalet")}</a>
         <a href="salon.html">${t("nav_salon")}</a>
+        <a href="about.html">${t("nav_about")}</a>
         <a href="photography.html">${t("nav_photography")}</a>
       </div>
       <div class="footer-divider"></div>

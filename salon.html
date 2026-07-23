@@ -7,56 +7,15 @@
   <link rel="icon" type="image/png" href="images/favicon.png">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .salon-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
-    }
-    .salon-card {
-      background: var(--white);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-      transition: all var(--transition);
-    }
-    .salon-card:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-hover);
-    }
-    .salon-card-img {
-      height: 180px;
-      background: var(--warm-white);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 3rem;
-      border-bottom: 2px solid rgba(184,144,126,0.1);
-    }
-    .salon-card-body {
-      padding: 20px;
-    }
-    .salon-card-body h3 {
-      font-size: 1.05rem;
-      margin-bottom: 6px;
-    }
-    .salon-card-body p {
-      font-size: 0.85rem;
-      color: var(--charcoal);
-      opacity: 0.7;
-      line-height: 1.7;
-      margin-bottom: 8px;
-    }
-    .salon-card-price {
-      font-family: var(--font-english-body);
-      font-weight: 700;
-      color: var(--rose-mauve-dark);
-      font-size: 1rem;
-      margin-bottom: 12px;
-    }
-    .salon-card-actions {
-      display: flex;
-      gap: 8px;
-    }
+    .salon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+    .salon-card{background:var(--white);border-radius:var(--radius-xl);box-shadow:var(--shadow-sm);overflow:hidden;transition:all var(--transition)}
+    .salon-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+    .salon-card-img{height:180px;background:var(--warm-white);display:flex;align-items:center;justify-content:center;font-size:3rem;border-bottom:2px solid rgba(184,144,126,0.1)}
+    .salon-card-body{padding:20px}
+    .salon-card-body h3{font-size:1.05rem;margin-bottom:6px}
+    .salon-card-body p{font-size:0.85rem;color:var(--charcoal);opacity:0.7;line-height:1.7;margin-bottom:8px}
+    .salon-card-price{font-family:var(--font-english-body);font-weight:700;color:var(--rose-mauve-dark);font-size:1rem;margin-bottom:12px}
+    .salon-card-actions{display:flex;gap:8px}
   </style>
 </head>
 <body>
@@ -72,8 +31,14 @@
     <div class="salon-grid" id="salonGrid">
       <div class="loading-overlay" style="grid-column:1/-1;">
         <div class="spinner"></div>
-        <div class="loading-text" data-t="cal_loading">جاري تحميل الخدمات...</div>
+        <div class="loading-text" data-t="cal_loading">جاري تحميل...</div>
       </div>
+    </div>
+
+    <!-- Gallery -->
+    <div class="gallery-section" style="margin-top:48px;">
+      <h2 class="gallery-section-title" data-t="gallery_salon">معرض خدمات التجميل</h2>
+      <div id="salonGallery"></div>
     </div>
   </main>
 
@@ -88,40 +53,37 @@
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/salonServices.js"></script>
+  <script src="js/galleryData.js"></script>
+  <script src="js/gallery.js"></script>
   <script>
     initPage("salon");
 
     function renderSalonServices() {
       const grid = document.getElementById("salonGrid");
       let html = "";
-
       SALON_SERVICES.forEach(service => {
-        const waText = Lang.isAr()
-          ? `مرحبًا، أريد حجز خدمة: ${service.name}`
-          : `Hello, I want to book: ${service.name_en || service.name}`;
         const name = Lang.isAr() ? service.name : (service.name_en || service.name);
         const desc = Lang.isAr() ? service.description : (service.description_en || service.description);
-
-        html += `
-          <div class="salon-card">
-            <div class="salon-card-img">${service.icon}</div>
-            <div class="salon-card-body">
-              <h3>${name}</h3>
-              <p>${desc}</p>
-              ${service.price ? `<div class="salon-card-price">${service.price}</div>` : ''}
-              <div class="salon-card-actions">
-                <a href="${getWhatsAppLink(waText)}" target="_blank" class="btn btn-primary btn-sm">
-                  <span data-t="salon_book_wa">احجزي عبر واتساب</span>
-                </a>
-              </div>
+        const waText = Lang.isAr() ? `مرحبًا، أريد حجز خدمة: ${service.name}` : `Hello, I want to book: ${service.name_en || service.name}`;
+        html += `<div class="salon-card">
+          <div class="salon-card-img">${service.icon}</div>
+          <div class="salon-card-body">
+            <h3>${name}</h3>
+            <p>${desc}</p>
+            ${service.price ? `<div class="salon-card-price">${service.price}</div>` : ''}
+            <div class="salon-card-actions">
+              <a href="${getWhatsAppLink(waText)}" target="_blank" class="btn btn-primary btn-sm">
+                <span data-t="salon_book_wa">احجزي عبر واتساب</span>
+              </a>
             </div>
-          </div>`;
+          </div>
+        </div>`;
       });
-
       grid.innerHTML = html;
     }
 
     renderSalonServices();
+    createGallery({ containerId: "salonGallery", category: "salon", columns: 3 });
   </script>
 </body>
 </html>

@@ -24,19 +24,16 @@
           <div class="service-card-title" data-t="home_chalet_title">حجز الشاليه</div>
           <div class="service-card-desc" data-t="home_chalet_desc">استمتع بتجربة مميزة</div>
         </a>
-
         <a href="photography.html" class="service-card">
           <div class="service-card-icon">📸</div>
           <div class="service-card-title" data-t="home_photo_title">حجز جلسة تصوير</div>
           <div class="service-card-desc" data-t="home_photo_desc">احجز موعدك لجلسة تصوير</div>
         </a>
-
         <a href="salon.html" class="service-card">
           <div class="service-card-icon">💇‍♀️</div>
           <div class="service-card-title" data-t="home_salon_title">مركز التجميل</div>
           <div class="service-card-desc" data-t="home_salon_desc">خدمات تجميل وعناية</div>
         </a>
-
         <a href="https://wa.me/966XXXXXXXXX" target="_blank" class="service-card">
           <div class="service-card-icon">📞</div>
           <div class="service-card-title" data-t="home_contact_title">تواصل معنا</div>
@@ -46,14 +43,44 @@
     </div>
   </section>
 
+  <!-- Testimonials Section -->
+  <section class="testimonials-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 data-t="testimonials_title">آراء عملائنا</h2>
+        <div class="section-line"></div>
+      </div>
+      <div class="testimonials-container" id="homeTestimonials"></div>
+    </div>
+  </section>
+
   <footer class="site-footer"></footer>
 
   <script src="js/translations.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/testimonials.js"></script>
   <script>
     initPage("home");
+
+    (async function loadTestimonials() {
+      try {
+        const result = await API.getTestimonials();
+        if (result.success && result.testimonials && result.testimonials.length > 0) {
+          createTestimonialsSlider({
+            containerId: "homeTestimonials",
+            testimonials: result.testimonials
+          });
+        } else {
+          document.getElementById("homeTestimonials").innerHTML =
+            `<p class="testimonials-empty">${t("testimonials_empty")}</p>`;
+        }
+      } catch (err) {
+        document.getElementById("homeTestimonials").innerHTML =
+          `<p class="testimonials-empty">${t("testimonials_empty")}</p>`;
+      }
+    })();
   </script>
 </body>
 </html>

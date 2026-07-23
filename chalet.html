@@ -27,6 +27,12 @@
     </div>
 
     <div id="chaletAlert"></div>
+
+    <!-- Gallery -->
+    <div class="gallery-section">
+      <h2 class="gallery-section-title" data-t="gallery_chalet">معرض الشاليه</h2>
+      <div id="chaletGallery"></div>
+    </div>
   </main>
 
   <!-- Day Details Modal -->
@@ -39,6 +45,12 @@
       <div class="modal-body">
         <div id="slotsContainer">
           <div class="spinner"></div>
+        </div>
+        <div id="priceDisplay" class="hidden">
+          <div class="price-display">
+            <span class="price-label" data-t="price_label">السعر</span>
+            <span><span class="price-value" id="priceValue">0</span> <span class="price-currency" data-t="price_sar">ريال</span></span>
+          </div>
         </div>
         <div id="bookingForm" class="hidden">
           <div style="width:60px;height:1px;background:var(--gold);margin:16px auto;"></div>
@@ -97,18 +109,23 @@
   <script src="js/auth.js"></script>
   <script src="js/main.js"></script>
   <script src="js/calendar.js"></script>
+  <script src="js/galleryData.js"></script>
+  <script src="js/gallery.js"></script>
   <script>
     initPage("chalet");
 
     let currentBookingType = "day";
     let selectedDate = null;
     let selectedSlot = null;
+    let currentPrice = 0;
 
     let calendar = createCalendar({
       containerId: "chaletCalendar",
       type: "chalet",
       onDayClick: openDayModal
     });
+
+    createGallery({ containerId: "chaletGallery", category: "chalet", columns: 3 });
 
     document.querySelectorAll("#bookingTabs .tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -117,7 +134,9 @@
         currentBookingType = btn.getAttribute("data-type");
         selectedDate = null;
         selectedSlot = null;
+        currentPrice = 0;
         document.getElementById("bookingForm").classList.add("hidden");
+        document.getElementById("priceDisplay").classList.add("hidden");
         calendar = createCalendar({
           containerId: "chaletCalendar",
           type: "chalet",
@@ -129,10 +148,23 @@
     async function openDayModal(date) {
       selectedDate = date;
       selectedSlot = null;
+      currentPrice = 0;
       document.getElementById("bookingForm").classList.add("hidden");
+      document.getElementById("priceDisplay").classList.add("hidden");
       document.getElementById("modalDate").textContent = formatDateAr(date);
       document.getElementById("slotsContainer").innerHTML = '<div class="spinner"></div>';
       showModal("dayModal");
+
+      /* Fetch price for this day */
+      const dayOfWeek = new Date(date).getDay();
+      try {
+        const priceResult = await API.getPrice("chalet", currentBookingType, dayOfWeek);
+        if (priceResult.success && priceResult.price) {
+          currentPrice = parseFloat(priceResult.price);
+          document.getElementById("priceValue").textContent = currentPrice;
+          document.getElementById("priceDisplay").classList.remove("hidden");
+        }
+      } catch (err) { /* price optional */ }
 
       try {
         const result = await API.getDayDetails("chalet", date);
@@ -158,12 +190,10 @@
         const isBooked = bookedSet.has(slot);
         const period = h < 12 ? t("time_am") : t("time_pm");
         const h12 = h > 12 ? h - 12 : h;
-        const displayTime = `${h12}:00 ${period}`;
-
         html += `<div class="time-slot ${isBooked ? 'booked' : 'available'}" 
                       data-slot="${slot}" 
                       ${isBooked ? '' : `onclick="selectSlot(this, '${slot}')"`}>
-                    ${displayTime}
+                    ${h12}:00 ${period}
                   </div>`;
       }
 
@@ -184,15 +214,8 @@
       const guests = document.getElementById("guestCount").value;
       const notes = document.getElementById("bookingNotes").value.trim();
 
-      if (!name || !phone) {
-        showAlert("chaletAlert", "error", t("modal_error_fill"));
-        return;
-      }
-
-      if (!selectedDate || !selectedSlot) {
-        showAlert("chaletAlert", "error", t("modal_error_select"));
-        return;
-      }
+      if (!name || !phone) { showAlert("chaletAlert", "error", t("modal_error_fill")); return; }
+      if (!selectedDate || !selectedSlot) { showAlert("chaletAlert", "error", t("modal_error_select")); return; }
 
       const btn = document.getElementById("submitBookingBtn");
       btn.disabled = true;
@@ -200,21 +223,16 @@
 
       try {
         const result = await API.submitChaletBooking({
-          type: currentBookingType,
-          date: selectedDate,
-          hour: selectedSlot,
-          customerName: name,
-          phone: phone,
-          guests: guests,
-          notes: notes
+          type: currentBookingType, date: selectedDate, hour: selectedSlot,
+          customerName: name, phone, guests, notes, price: currentPrice
         });
 
         if (result.success) {
           hideModal("dayModal");
           const typeLabel = currentBookingType === 'day' ? t("chalet_tab_day") : t("chalet_tab_night");
           const waMsg = Lang.isAr()
-            ? `مرحبًا، أريد تأكيد حجز شاليه:\nالتاريخ: ${selectedDate}\nالوقت: ${selectedSlot}\nالنوع: ${typeLabel}\nالاسم: ${name}\nالهاتف: ${phone}\nعدد الأشخاص: ${guests}`
-            : `Hello, I want to confirm a chalet booking:\nDate: ${selectedDate}\nTime: ${selectedSlot}\nType: ${typeLabel}\nName: ${name}\nPhone: ${phone}\nGuests: ${guests}`;
+            ? `مرحبًا، أريد تأكيد حجز شاليه:\nالتاريخ: ${selectedDate}\nالوقت: ${selectedSlot}\nالنوع: ${typeLabel}\nالسعر: ${currentPrice} ${t("price_sar")}\nالاسم: ${name}\nالهاتف: ${phone}\nعدد الأشخاص: ${guests}`
+            : `Hello, I want to confirm a chalet booking:\nDate: ${selectedDate}\nTime: ${selectedSlot}\nType: ${typeLabel}\nPrice: ${currentPrice} SAR\nName: ${name}\nPhone: ${phone}\nGuests: ${guests}`;
           document.getElementById("confirmWhatsApp").href = getWhatsAppLink(waMsg);
           showModal("confirmModal");
           calendar.refresh();
