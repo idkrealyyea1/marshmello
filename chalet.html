@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-t="chalet_title">حجز الشاليه — Marshmallow</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header"></header>
+
+  <main class="page-container">
+    <div class="section-header">
+      <h1 data-t="chalet_title">حجز الشاليه</h1>
+      <div class="section-line"></div>
+      <p data-t="chalet_subtitle">اختر اليوم والوقت المناسب لك</p>
+    </div>
+
+    <div class="tabs" id="bookingTabs">
+      <button class="tab-btn active" data-type="day" data-t="chalet_tab_day">حجز نهاري</button>
+      <button class="tab-btn" data-type="overnight" data-t="chalet_tab_night">حجز مبيت</button>
+    </div>
+
+    <div class="calendar-wrapper">
+      <div id="chaletCalendar"></div>
+    </div>
+
+    <div id="chaletAlert"></div>
+  </main>
+
+  <!-- Day Details Modal -->
+  <div class="modal-overlay" id="dayModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalDate">تفاصيل اليوم</h3>
+        <button class="modal-close" onclick="hideModal('dayModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="slotsContainer">
+          <div class="spinner"></div>
+        </div>
+        <div id="bookingForm" class="hidden">
+          <div style="width:60px;height:1px;background:var(--gold);margin:16px auto;"></div>
+          <div class="form-group">
+            <label class="form-label" data-t="modal_full_name">الاسم الكامل</label>
+            <input type="text" class="form-input" id="customerName" data-t-ph="modal_full_name_ph" placeholder="أدخل اسمك الكامل">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-t="modal_phone">رقم الهاتف / واتساب</label>
+            <input type="tel" class="form-input" id="customerPhone" data-t-ph="modal_phone_ph" placeholder="05XXXXXXXX">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-t="modal_guests">عدد الأشخاص</label>
+            <input type="number" class="form-input" id="guestCount" min="1" max="50" value="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-t="modal_notes">ملاحظات إضافية</label>
+            <textarea class="form-input" id="bookingNotes" data-t-ph="modal_notes_ph" placeholder="أي طلبات خاصة..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-block" id="submitBookingBtn" onclick="submitBooking()">
+            <span data-t="modal_confirm">تأكيد الحجز</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal">
+      <div class="modal-body">
+        <div class="booking-confirmation">
+          <div class="icon">✅</div>
+          <h3 data-t="confirm_title">تم استلام طلب الحجز!</h3>
+          <p id="confirmMsg" data-t="confirm_msg">تم إرسال طلبك بنجاح.</p>
+          <a class="btn btn-success" id="confirmWhatsApp" href="#" target="_blank">
+            <span data-t="confirm_wa">تأكيد عبر واتساب</span>
+          </a>
+          <br>
+          <button class="btn btn-secondary mt-2" onclick="hideModal('confirmModal')">
+            <span data-t="confirm_close">إغلاق</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a class="whatsapp-float" href="https://wa.me/966XXXXXXXXX" target="_blank" data-t-aria="home_contact_title">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <footer class="site-footer"></footer>
+
+  <script src="js/translations.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/calendar.js"></script>
+  <script>
+    initPage("chalet");
+
+    let currentBookingType = "day";
+    let selectedDate = null;
+    let selectedSlot = null;
+
+    let calendar = createCalendar({
+      containerId: "chaletCalendar",
+      type: "chalet",
+      onDayClick: openDayModal
+    });
+
+    document.querySelectorAll("#bookingTabs .tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#bookingTabs .tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentBookingType = btn.getAttribute("data-type");
+        selectedDate = null;
+        selectedSlot = null;
+        document.getElementById("bookingForm").classList.add("hidden");
+        calendar = createCalendar({
+          containerId: "chaletCalendar",
+          type: "chalet",
+          onDayClick: openDayModal
+        });
+      });
+    });
+
+    async function openDayModal(date) {
+      selectedDate = date;
+      selectedSlot = null;
+      document.getElementById("bookingForm").classList.add("hidden");
+      document.getElementById("modalDate").textContent = formatDateAr(date);
+      document.getElementById("slotsContainer").innerHTML = '<div class="spinner"></div>';
+      showModal("dayModal");
+
+      try {
+        const result = await API.getDayDetails("chalet", date);
+        if (result.success) {
+          renderSlots(result.bookedSlots || []);
+        } else {
+          document.getElementById("slotsContainer").innerHTML =
+            `<div class="alert alert-error">${t("alert_error")}</div>`;
+        }
+      } catch (err) {
+        document.getElementById("slotsContainer").innerHTML =
+          `<div class="alert alert-error">${t("alert_server")}</div>`;
+      }
+    }
+
+    function renderSlots(bookedSlots) {
+      const container = document.getElementById("slotsContainer");
+      const bookedSet = new Set(bookedSlots);
+      let html = '<div class="slots-container">';
+
+      for (let h = 9; h < 24; h++) {
+        const slot = `${String(h).padStart(2, "0")}:00`;
+        const isBooked = bookedSet.has(slot);
+        const period = h < 12 ? t("time_am") : t("time_pm");
+        const h12 = h > 12 ? h - 12 : h;
+        const displayTime = `${h12}:00 ${period}`;
+
+        html += `<div class="time-slot ${isBooked ? 'booked' : 'available'}" 
+                      data-slot="${slot}" 
+                      ${isBooked ? '' : `onclick="selectSlot(this, '${slot}')"`}>
+                    ${displayTime}
+                  </div>`;
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function selectSlot(el, slot) {
+      document.querySelectorAll(".time-slot").forEach(s => s.classList.remove("selected"));
+      el.classList.add("selected");
+      selectedSlot = slot;
+      document.getElementById("bookingForm").classList.remove("hidden");
+    }
+
+    async function submitBooking() {
+      const name = document.getElementById("customerName").value.trim();
+      const phone = document.getElementById("customerPhone").value.trim();
+      const guests = document.getElementById("guestCount").value;
+      const notes = document.getElementById("bookingNotes").value.trim();
+
+      if (!name || !phone) {
+        showAlert("chaletAlert", "error", t("modal_error_fill"));
+        return;
+      }
+
+      if (!selectedDate || !selectedSlot) {
+        showAlert("chaletAlert", "error", t("modal_error_select"));
+        return;
+      }
+
+      const btn = document.getElementById("submitBookingBtn");
+      btn.disabled = true;
+      btn.querySelector("span").textContent = t("modal_sending");
+
+      try {
+        const result = await API.submitChaletBooking({
+          type: currentBookingType,
+          date: selectedDate,
+          hour: selectedSlot,
+          customerName: name,
+          phone: phone,
+          guests: guests,
+          notes: notes
+        });
+
+        if (result.success) {
+          hideModal("dayModal");
+          const typeLabel = currentBookingType === 'day' ? t("chalet_tab_day") : t("chalet_tab_night");
+          const waMsg = Lang.isAr()
+            ? `مرحبًا، أريد تأكيد حجز شاليه:\nالتاريخ: ${selectedDate}\nالوقت: ${selectedSlot}\nالنوع: ${typeLabel}\nالاسم: ${name}\nالهاتف: ${phone}\nعدد الأشخاص: ${guests}`
+            : `Hello, I want to confirm a chalet booking:\nDate: ${selectedDate}\nTime: ${selectedSlot}\nType: ${typeLabel}\nName: ${name}\nPhone: ${phone}\nGuests: ${guests}`;
+          document.getElementById("confirmWhatsApp").href = getWhatsAppLink(waMsg);
+          showModal("confirmModal");
+          calendar.refresh();
+        } else {
+          showAlert("chaletAlert", "error", result.message || t("alert_error"));
+        }
+      } catch (err) {
+        showAlert("chaletAlert", "error", t("modal_error_server"));
+      }
+
+      btn.disabled = false;
+      btn.querySelector("span").textContent = t("modal_confirm");
+    }
+  </script>
+</body>
+</html>

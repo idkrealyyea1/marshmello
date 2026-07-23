@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-t="photo_title">حجز جلسة تصوير — Marshmallow</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header"></header>
+
+  <!-- Not logged in state -->
+  <main class="page-container" id="loginRequired">
+    <div class="section-header">
+      <h1 data-t="photo_title">حجز جلسة تصوير</h1>
+      <div class="section-line"></div>
+      <p data-t="photo_login_req">الرجاء تسجيل الدخول للمتابعة</p>
+    </div>
+    <div class="text-center">
+      <a href="login.html" class="btn btn-primary btn-lg" data-t="photo_login_btn">تسجيل الدخول</a>
+    </div>
+  </main>
+
+  <!-- Logged in state -->
+  <main class="page-container hidden" id="photographerPanel">
+    <div class="section-header">
+      <h1 data-t="photo_title">حجز جلسة تصوير</h1>
+      <div class="section-line"></div>
+      <p data-t="photo_subtitle">اختر اليوم والوقت المناسب لجلستك</p>
+    </div>
+
+    <div id="photoAlert"></div>
+
+    <div class="calendar-wrapper">
+      <div id="photoCalendar"></div>
+    </div>
+
+    <div class="admin-panel mt-3">
+      <div class="admin-panel-header">
+        <h3 data-t="photo_my_bookings">حجوزاتي القادمة</h3>
+      </div>
+      <div id="myBookingsContainer">
+        <div class="spinner"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Time Selection Modal -->
+  <div class="modal-overlay" id="photoDayModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="photoModalDate">تفاصيل اليوم</h3>
+        <button class="modal-close" onclick="hideModal('photoDayModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="photoSlotsContainer">
+          <div class="spinner"></div>
+        </div>
+        <div id="photoBookingForm" class="hidden">
+          <div style="width:60px;height:1px;background:var(--gold);margin:16px auto;"></div>
+          <div class="form-group">
+            <label class="form-label" data-t="modal_notes_photo">ملاحظات</label>
+            <textarea class="form-input" id="photoNotes" data-t-ph="modal_notes_photo_ph" placeholder="أي ملاحظات حول الجلسة..."></textarea>
+          </div>
+          <button class="btn btn-primary btn-block" id="submitPhotoBtn" onclick="submitPhotoBooking()">
+            <span data-t="modal_confirm">تأكيد الحجز</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="photoConfirmModal">
+    <div class="modal">
+      <div class="modal-body">
+        <div class="booking-confirmation">
+          <div class="icon">📸</div>
+          <h3 data-t="confirm_photo_title">تم حجز جلسة التصوير!</h3>
+          <p data-t="confirm_photo_msg">تم تسجيل حجزك بنجاح.</p>
+          <button class="btn btn-secondary" onclick="hideModal('photoConfirmModal')">
+            <span data-t="confirm_close">إغلاق</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a class="whatsapp-float" href="https://wa.me/966XXXXXXXXX" target="_blank" data-t-aria="home_contact_title">
+    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  </a>
+
+  <footer class="site-footer"></footer>
+
+  <script src="js/translations.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/calendar.js"></script>
+  <script>
+    initPage("photography");
+
+    let photoSelectedDate = null;
+    let photoSelectedSlot = null;
+    let photoCalendar = null;
+
+    if (Auth.isLoggedIn() && Auth.isPhotographer()) {
+      document.getElementById("loginRequired").classList.add("hidden");
+      document.getElementById("photographerPanel").classList.remove("hidden");
+
+      photoCalendar = createCalendar({
+        containerId: "photoCalendar",
+        type: "photography",
+        onDayClick: openPhotoDayModal
+      });
+
+      loadMyBookings();
+    }
+
+    async function openPhotoDayModal(date) {
+      photoSelectedDate = date;
+      photoSelectedSlot = null;
+      document.getElementById("photoBookingForm").classList.add("hidden");
+      document.getElementById("photoModalDate").textContent = formatDateAr(date);
+      document.getElementById("photoSlotsContainer").innerHTML = '<div class="spinner"></div>';
+      showModal("photoDayModal");
+
+      try {
+        const result = await API.getDayDetails("photography", date);
+        if (result.success) {
+          renderPhotoSlots(result.bookedSlots || []);
+        } else {
+          document.getElementById("photoSlotsContainer").innerHTML =
+            `<div class="alert alert-error">${t("alert_error")}</div>`;
+        }
+      } catch (err) {
+        document.getElementById("photoSlotsContainer").innerHTML =
+          `<div class="alert alert-error">${t("alert_server")}</div>`;
+      }
+    }
+
+    function renderPhotoSlots(bookedSlots) {
+      const container = document.getElementById("photoSlotsContainer");
+      const bookedSet = new Set(bookedSlots);
+      let html = '<div class="slots-container">';
+
+      for (let h = 9; h < 24; h++) {
+        const slot = `${String(h).padStart(2, "0")}:00`;
+        const isBooked = bookedSet.has(slot);
+        const period = h < 12 ? t("time_am") : t("time_pm");
+        const h12 = h > 12 ? h - 12 : h;
+        const displayTime = `${h12}:00 ${period}`;
+
+        html += `<div class="time-slot ${isBooked ? 'booked' : 'available'}" 
+                      data-slot="${slot}"
+                      ${isBooked ? '' : `onclick="selectPhotoSlot(this, '${slot}')"`}>
+                    ${displayTime}
+                  </div>`;
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function selectPhotoSlot(el, slot) {
+      document.querySelectorAll("#photoSlotsContainer .time-slot").forEach(s => s.classList.remove("selected"));
+      el.classList.add("selected");
+      photoSelectedSlot = slot;
+      document.getElementById("photoBookingForm").classList.remove("hidden");
+    }
+
+    async function submitPhotoBooking() {
+      if (!photoSelectedDate || !photoSelectedSlot) {
+        showAlert("photoAlert", "error", t("modal_error_select"));
+        return;
+      }
+
+      const btn = document.getElementById("submitPhotoBtn");
+      btn.disabled = true;
+      btn.querySelector("span").textContent = t("modal_sending");
+
+      try {
+        const result = await API.submitPhotographyBooking({
+          photographerUsername: Auth.getUsername(),
+          date: photoSelectedDate,
+          hour: photoSelectedSlot,
+          notes: document.getElementById("photoNotes").value.trim()
+        });
+
+        if (result.success) {
+          hideModal("photoDayModal");
+          showModal("photoConfirmModal");
+          photoCalendar.refresh();
+          loadMyBookings();
+        } else {
+          showAlert("photoAlert", "error", result.message || t("alert_error"));
+        }
+      } catch (err) {
+        showAlert("photoAlert", "error", t("modal_error_server"));
+      }
+
+      btn.disabled = false;
+      btn.querySelector("span").textContent = t("modal_confirm");
+    }
+
+    async function loadMyBookings() {
+      const container = document.getElementById("myBookingsContainer");
+      try {
+        const result = await API.getMyBookings(Auth.getUsername());
+        if (result.success && result.bookings && result.bookings.length > 0) {
+          let html = '<div class="admin-table-wrapper"><table class="admin-table">';
+          html += `<thead><tr>
+            <th>${t("th_date")}</th>
+            <th>${t("th_time")}</th>
+            <th>${t("th_status")}</th>
+            <th>${t("th_notes")}</th>
+          </tr></thead><tbody>`;
+
+          result.bookings.forEach(b => {
+            const statusClass = b.status;
+            const statusText = t("status_" + b.status);
+            html += `<tr>
+              <td>${b.date}</td>
+              <td>${b.hour}</td>
+              <td><span class="status-badge ${statusClass}"><span class="dot"></span>${statusText}</span></td>
+              <td>${b.notes || '-'}</td>
+            </tr>`;
+          });
+
+          html += '</tbody></table></div>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = `<p class="text-center" style="opacity:0.5;padding:20px;">${t("photo_no_bookings")}</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<p class="text-center" style="opacity:0.5;padding:20px;">${t("alert_server")}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>

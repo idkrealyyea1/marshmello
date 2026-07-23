@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title data-t="admin_title">لوحة التحكم — Marshmallow</title>
+  <link rel="icon" type="image/png" href="images/favicon.png">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-page">
+  <div class="admin-header">
+    <div class="admin-header-inner">
+      <div class="admin-header-left">
+        <img src="images/logo.png" alt="Marshmallow" onerror="this.style.display='none'">
+        <h2 class="english-heading">Marshmallow Admin</h2>
+      </div>
+      <div class="admin-header-right">
+        <div class="admin-user-badge">
+          <span class="dot"></span>
+          <span id="adminName">Admin</span>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="Auth.logout()">
+          <span data-t="nav_logout">تسجيل الخروج</span>
+        </button>
+        <button class="lang-toggle btn-sm" onclick="Lang.toggle(); location.reload();">EN</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <nav class="admin-sidebar-nav">
+        <a href="#dashboard" class="active" onclick="showSection('dashboard')">
+          <span class="icon">📊</span> <span data-t="admin_overview">نظرة عامة</span>
+        </a>
+        <a href="#chalet-bookings" onclick="showSection('chalet-bookings')">
+          <span class="icon">🏡</span> <span data-t="admin_chalet_bk">حجوزات الشاليه</span>
+        </a>
+        <a href="#photo-bookings" onclick="showSection('photo-bookings')">
+          <span class="icon">📸</span> <span data-t="admin_photo_bk">حجوزات التصوير</span>
+        </a>
+        <a href="#photographers" onclick="showSection('photographers')">
+          <span class="icon">👥</span> <span data-t="admin_photographers">المصورون</span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+
+      <!-- Dashboard Section -->
+      <div class="admin-section active" id="section-dashboard">
+        <h3 class="mb-3" data-t="admin_overview">نظرة عامة</h3>
+
+        <div class="stats-grid" id="statsGrid">
+          <div class="stat-card">
+            <div class="stat-icon rose">🏡</div>
+            <div class="stat-info">
+              <div class="stat-number" id="statChaletTotal">-</div>
+              <div class="stat-label" data-t="admin_total_chalet">حجوزات الشاليه</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon gold">📸</div>
+            <div class="stat-info">
+              <div class="stat-number" id="statPhotoTotal">-</div>
+              <div class="stat-label" data-t="admin_total_photo">حجوزات التصوير</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-info">
+              <div class="stat-number" id="statConfirmed">-</div>
+              <div class="stat-label" data-t="admin_confirmed">مؤكدة</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">⏳</div>
+            <div class="stat-info">
+              <div class="stat-number" id="statPending">-</div>
+              <div class="stat-label" data-t="admin_pending">قيد الانتظار</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h3 data-t="admin_monthly">حجوزات هذا الشهر</h3>
+          </div>
+          <div id="barChartContainer">
+            <div class="bar-chart" id="barChart"></div>
+            <div class="bar-chart-labels" id="barChartLabels"></div>
+          </div>
+        </div>
+
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h3 data-t="admin_top_photo">أكثر المصوّرين نشاطًا</h3>
+          </div>
+          <div id="topPhotographers">
+            <p style="opacity:0.5;text-align:center;padding:20px;" data-t="admin_no_data">جاري التحميل...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chalet Bookings Section -->
+      <div class="admin-section" id="section-chalet-bookings">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h3 data-t="admin_chalet_bk">حجوزات الشاليه</h3>
+            <div class="admin-panel-filters" id="chaletFilters">
+              <button class="filter-btn active" onclick="filterChaletBookings('all', this)">
+                <span data-t="btn_filter_all">الكل</span>
+              </button>
+              <button class="filter-btn" onclick="filterChaletBookings('pending', this)">
+                <span data-t="btn_filter_pending">قيد الانتظار</span>
+              </button>
+              <button class="filter-btn" onclick="filterChaletBookings('confirmed', this)">
+                <span data-t="btn_filter_confirmed">مؤكد</span>
+              </button>
+              <button class="filter-btn" onclick="filterChaletBookings('cancelled', this)">
+                <span data-t="btn_filter_cancelled">ملغى</span>
+              </button>
+            </div>
+          </div>
+          <div id="chaletBookingsTable">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photography Bookings Section -->
+      <div class="admin-section" id="section-photo-bookings">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h3 data-t="admin_photo_bk">حجوزات التصوير</h3>
+            <div class="admin-panel-filters" id="photoFilters">
+              <button class="filter-btn active" onclick="filterPhotoBookings('all', this)">
+                <span data-t="btn_filter_all">الكل</span>
+              </button>
+              <button class="filter-btn" onclick="filterPhotoBookings('pending', this)">
+                <span data-t="btn_filter_pending">قيد الانتظار</span>
+              </button>
+              <button class="filter-btn" onclick="filterPhotoBookings('confirmed', this)">
+                <span data-t="btn_filter_confirmed">مؤكد</span>
+              </button>
+              <button class="filter-btn" onclick="filterPhotoBookings('cancelled', this)">
+                <span data-t="btn_filter_cancelled">ملغى</span>
+              </button>
+            </div>
+          </div>
+          <div id="photoBookingsTable">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Photographers Section -->
+      <div class="admin-section" id="section-photographers">
+        <div class="admin-panel">
+          <div class="admin-panel-header">
+            <h3 data-t="admin_add_photo">إضافة مصوّر جديد</h3>
+          </div>
+          <div class="add-form">
+            <input type="text" class="form-input" id="newPhotoName" data-t-ph="admin_full_name" placeholder="الاسم الكامل">
+            <input type="text" class="form-input" id="newPhotoUsername" data-t-ph="admin_username" placeholder="اسم المستخدم">
+            <input type="text" class="form-input" id="newPhotoPassword" data-t-ph="admin_temp_pass" placeholder="كلمة المرور المؤقتة">
+            <button class="btn btn-primary" onclick="addPhotographer()">
+              <span data-t="admin_add_btn">إضافة</span>
+            </button>
+          </div>
+          <div id="photographersList">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/translations.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    if (!Auth.requireAuth("admin")) {
+      throw new Error("Not authorized");
+    }
+
+    Lang.init();
+    document.getElementById("adminName").textContent = Auth.getUsername();
+
+    let currentFilter = { chalet: "all", photo: "all" };
+
+    function showSection(name) {
+      document.querySelectorAll(".admin-section").forEach(s => s.classList.remove("active"));
+      document.querySelectorAll(".admin-sidebar-nav a").forEach(a => a.classList.remove("active"));
+      document.getElementById(`section-${name}`).classList.add("active");
+      document.querySelector(`[href="#${name}"]`).classList.add("active");
+
+      if (name === "dashboard") loadDashboard();
+      if (name === "chalet-bookings") loadChaletBookings();
+      if (name === "photo-bookings") loadPhotoBookings();
+      if (name === "photographers") loadPhotographers();
+    }
+
+    // === Dashboard ===
+    async function loadDashboard() {
+      const now = new Date();
+      try {
+        const result = await API.getAdminStats(now.getFullYear(), now.getMonth() + 1);
+        if (result.success) {
+          document.getElementById("statChaletTotal").textContent = result.chaletTotal || 0;
+          document.getElementById("statPhotoTotal").textContent = result.photoTotal || 0;
+          document.getElementById("statConfirmed").textContent = result.confirmed || 0;
+          document.getElementById("statPending").textContent = result.pending || 0;
+          renderBarChart(result.dailyBookings || {}, now);
+          renderTopPhotographers(result.topPhotographers || []);
+        }
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+      }
+    }
+
+    function renderBarChart(dailyBookings, now) {
+      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+      const maxVal = Math.max(1, ...Object.values(dailyBookings));
+      let chartHtml = "";
+      let labelsHtml = "";
+
+      for (let d = 1; d <= daysInMonth; d++) {
+        const count = dailyBookings[d] || 0;
+        const height = Math.max(4, (count / maxVal) * 100);
+        const label = Lang.isAr() ? `${d}: ${count} حجز` : `Day ${d}: ${count} bookings`;
+        chartHtml += `<div class="bar-chart-bar" style="height:${height}%">
+          <div class="tooltip">${label}</div>
+        </div>`;
+        labelsHtml += `<span>${d}</span>`;
+      }
+
+      document.getElementById("barChart").innerHTML = chartHtml;
+      document.getElementById("barChartLabels").innerHTML = labelsHtml;
+    }
+
+    function renderTopPhotographers(list) {
+      const container = document.getElementById("topPhotographers");
+      if (list.length === 0) {
+        container.innerHTML = `<p style="opacity:0.5;text-align:center;padding:20px;">${t("admin_no_data")}</p>`;
+        return;
+      }
+      let html = "";
+      list.forEach(p => {
+        html += `<div class="photographer-card">
+          <div class="photographer-info">
+            <div class="photographer-avatar">${(p.name || p.username || '?')[0]}</div>
+            <div>
+              <div class="photographer-name">${p.name || p.username}</div>
+              <div class="photographer-username">${p.count} ${t("th_bookings")}</div>
+            </div>
+          </div>
+        </div>`;
+      });
+      container.innerHTML = html;
+    }
+
+    // === Chalet Bookings ===
+    async function loadChaletBookings(status) {
+      const now = new Date();
+      const container = document.getElementById("chaletBookingsTable");
+      container.innerHTML = '<div class="spinner"></div>';
+      try {
+        const result = await API.getAllBookings("chalet", status === "all" ? null : status, now.getFullYear(), now.getMonth() + 1);
+        if (result.success && result.bookings && result.bookings.length > 0) {
+          let html = '<div class="admin-table-wrapper"><table class="admin-table">';
+          html += `<thead><tr>
+            <th>${t("th_date")}</th><th>${t("th_time")}</th><th>${t("th_type")}</th>
+            <th>${t("th_customer")}</th><th>${t("th_phone")}</th><th>${t("th_guests")}</th>
+            <th>${t("th_status")}</th><th>${t("th_actions")}</th>
+          </tr></thead><tbody>`;
+
+          result.bookings.forEach(b => {
+            const statusClass = b.status;
+            const statusText = t("status_" + b.status);
+            const typeText = b.type === "overnight" ? t("type_overnight") : t("type_day");
+            html += `<tr>
+              <td>${b.date}</td>
+              <td style="font-family:var(--font-english-body)">${b.hour}</td>
+              <td>${typeText}</td>
+              <td>${b.customerName}</td>
+              <td style="font-family:var(--font-english-body);direction:ltr;text-align:right">${b.phone}</td>
+              <td>${b.guests}</td>
+              <td><span class="status-badge ${statusClass}"><span class="dot"></span>${statusText}</span></td>
+              <td>
+                <div class="table-actions">
+                  ${b.status === 'pending' ? `
+                    <button class="btn-confirm" onclick="updateStatus('${b.id}', 'chalet', 'confirmed')">${t("btn_confirm")}</button>
+                    <button class="btn-cancel" onclick="updateStatus('${b.id}', 'chalet', 'cancelled')">${t("btn_cancel")}</button>
+                  ` : ''}
+                  <button class="btn-delete" onclick="deleteBooking('${b.id}', 'chalet')">${t("btn_delete")}</button>
+                </div>
+              </td>
+            </tr>`;
+          });
+
+          html += '</tbody></table></div>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = `<p style="opacity:0.5;text-align:center;padding:30px;">${t("admin_no_bookings")}</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="alert alert-error">${t("alert_server")}</div>`;
+      }
+    }
+
+    function filterChaletBookings(status, btn) {
+      currentFilter.chalet = status;
+      btn.parentElement.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadChaletBookings(status);
+    }
+
+    // === Photo Bookings ===
+    async function loadPhotoBookings(status) {
+      const now = new Date();
+      const container = document.getElementById("photoBookingsTable");
+      container.innerHTML = '<div class="spinner"></div>';
+      try {
+        const result = await API.getAllBookings("photography", status === "all" ? null : status, now.getFullYear(), now.getMonth() + 1);
+        if (result.success && result.bookings && result.bookings.length > 0) {
+          let html = '<div class="admin-table-wrapper"><table class="admin-table">';
+          html += `<thead><tr>
+            <th>${t("th_date")}</th><th>${t("th_time")}</th><th>${t("th_photographer")}</th>
+            <th>${t("th_status")}</th><th>${t("th_notes")}</th><th>${t("th_actions")}</th>
+          </tr></thead><tbody>`;
+
+          result.bookings.forEach(b => {
+            const statusClass = b.status;
+            const statusText = t("status_" + b.status);
+            html += `<tr>
+              <td>${b.date}</td>
+              <td style="font-family:var(--font-english-body)">${b.hour}</td>
+              <td>${b.photographerUsername}</td>
+              <td><span class="status-badge ${statusClass}"><span class="dot"></span>${statusText}</span></td>
+              <td>${b.notes || '-'}</td>
+              <td>
+                <div class="table-actions">
+                  ${b.status === 'pending' ? `
+                    <button class="btn-confirm" onclick="updateStatus('${b.id}', 'photography', 'confirmed')">${t("btn_confirm")}</button>
+                    <button class="btn-cancel" onclick="updateStatus('${b.id}', 'photography', 'cancelled')">${t("btn_cancel")}</button>
+                  ` : ''}
+                  <button class="btn-delete" onclick="deleteBooking('${b.id}', 'photography')">${t("btn_delete")}</button>
+                </div>
+              </td>
+            </tr>`;
+          });
+
+          html += '</tbody></table></div>';
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = `<p style="opacity:0.5;text-align:center;padding:30px;">${t("admin_no_bookings")}</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="alert alert-error">${t("alert_server")}</div>`;
+      }
+    }
+
+    function filterPhotoBookings(status, btn) {
+      currentFilter.photo = status;
+      btn.parentElement.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      loadPhotoBookings(status);
+    }
+
+    // === Booking Actions ===
+    async function updateStatus(id, type, newStatus) {
+      try {
+        const result = await API.updateBookingStatus(id, type, newStatus);
+        if (result.success) {
+          if (type === "chalet") loadChaletBookings(currentFilter.chalet);
+          else loadPhotoBookings(currentFilter.photo);
+        }
+      } catch (err) {
+        alert(t("alert_error"));
+      }
+    }
+
+    async function deleteBooking(id, type) {
+      if (!confirm(t("confirm_delete"))) return;
+      try {
+        const result = await API.deleteBooking(id, type);
+        if (result.success) {
+          if (type === "chalet") loadChaletBookings(currentFilter.chalet);
+          else loadPhotoBookings(currentFilter.photo);
+        }
+      } catch (err) {
+        alert(t("alert_error"));
+      }
+    }
+
+    // === Photographers Management ===
+    async function loadPhotographers() {
+      const container = document.getElementById("photographersList");
+      container.innerHTML = '<div class="spinner"></div>';
+      try {
+        const result = await API.getPhotographers();
+        if (result.success && result.photographers && result.photographers.length > 0) {
+          let html = "";
+          result.photographers.forEach(p => {
+            const inactive = p.active === false || p.active === 'false' ? (Lang.isAr() ? ' (معطّل)' : ' (inactive)') : '';
+            html += `<div class="photographer-card">
+              <div class="photographer-info">
+                <div class="photographer-avatar">${(p.fullName || p.username || '?')[0]}</div>
+                <div>
+                  <div class="photographer-name">${p.fullName || p.username}</div>
+                  <div class="photographer-username">@${p.username}${inactive}</div>
+                </div>
+              </div>
+            </div>`;
+          });
+          container.innerHTML = html;
+        } else {
+          container.innerHTML = `<p style="opacity:0.5;text-align:center;padding:20px;">${t("admin_no_photo")}</p>`;
+        }
+      } catch (err) {
+        container.innerHTML = `<div class="alert alert-error">${t("alert_server")}</div>`;
+      }
+    }
+
+    async function addPhotographer() {
+      const name = document.getElementById("newPhotoName").value.trim();
+      const username = document.getElementById("newPhotoUsername").value.trim();
+      const password = document.getElementById("newPhotoPassword").value.trim();
+
+      if (!name || !username || !password) {
+        alert(t("login_error_empty"));
+        return;
+      }
+
+      try {
+        const result = await API.createPhotographer({ fullName: name, username, password });
+        if (result.success) {
+          document.getElementById("newPhotoName").value = "";
+          document.getElementById("newPhotoUsername").value = "";
+          document.getElementById("newPhotoPassword").value = "";
+          loadPhotographers();
+        } else {
+          alert(result.message || t("alert_error"));
+        }
+      } catch (err) {
+        alert(t("alert_server"));
+      }
+    }
+
+    // Load dashboard on start
+    loadDashboard();
+  </script>
+</body>
+</html>
