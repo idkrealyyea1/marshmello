@@ -180,9 +180,30 @@ function renderHeader(activePage) {
         <a href="chalet.html" class="${activePage === 'chalet' ? 'nav-active' : ''}">${t("nav_chalet")}</a>
         <a href="salon.html" class="${activePage === 'salon' ? 'nav-active' : ''}">${t("nav_salon")}</a>
         <a href="about.html" class="${activePage === 'about' ? 'nav-active' : ''}">${t("nav_about")}</a>
+        <a href="photography.html" class="${activePage === 'photography' ? 'nav-active' : ''}">${t("nav_photography")}</a>
         ${navLinks.map(l => `<a href="${l.href}" class="${activePage === l.key ? 'nav-active' : ''}" ${l.onclick ? `onclick="${l.onclick}"` : ''}>${l.label}</a>`).join("")}
         <a href="#" class="lang-toggle" onclick="${langOnclick}">${langLabel}</a>
       </nav>
+      <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileNav()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="mobile-nav-overlay" id="mobileNavOverlay" onclick="toggleMobileNav()"></div>
+    <div class="mobile-nav" id="mobileNav">
+      <div class="mobile-nav-header">
+        <div class="m-logo">${getMLogoSVG()}</div>
+        <div class="mobile-nav-brand">MARSHMALLOW</div>
+      </div>
+      <div class="mobile-nav-links">
+        <a href="index.html" class="${activePage === 'home' ? 'nav-active' : ''}">${t("nav_home")}</a>
+        <a href="chalet.html" class="${activePage === 'chalet' ? 'nav-active' : ''}">${t("nav_chalet")}</a>
+        <a href="photography.html" class="${activePage === 'photography' ? 'nav-active' : ''}">${t("nav_photography")}</a>
+        <a href="salon.html" class="${activePage === 'salon' ? 'nav-active' : ''}">${t("nav_salon")}</a>
+        <a href="about.html" class="${activePage === 'about' ? 'nav-active' : ''}">${t("nav_about")}</a>
+        ${navLinks.map(l => `<a href="${l.href}" class="${activePage === l.key ? 'nav-active' : ''} ${l.key === 'logout' ? 'logout-link' : ''}" ${l.onclick ? `onclick="${l.onclick}"` : ''}>${l.label}</a>`).join("")}
+        <a href="#" class="lang-toggle-link" onclick="${langOnclick}">${langLabel}</a>
+      </div>
     </div>`;
 }
 
@@ -208,6 +229,26 @@ function renderFooter() {
       <div class="footer-divider"></div>
       <div class="footer-copyright">&copy; ${year} Marshmallow — Photo Chalet & Events. ${t("footer_rights")}.</div>
     </div>`;
+}
+
+/* --- Mobile Nav Toggle --- */
+function toggleMobileNav() {
+  const btn = document.getElementById("hamburgerBtn");
+  const overlay = document.getElementById("mobileNavOverlay");
+  const nav = document.getElementById("mobileNav");
+  if (!btn || !overlay || !nav) return;
+  const isOpen = nav.classList.contains("active");
+  if (isOpen) {
+    btn.classList.remove("active");
+    overlay.classList.remove("active");
+    nav.classList.remove("active");
+    document.body.style.overflow = "";
+  } else {
+    btn.classList.add("active");
+    overlay.classList.add("active");
+    nav.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
 }
 
 /* --- Init Page --- */

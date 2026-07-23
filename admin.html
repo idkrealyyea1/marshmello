@@ -347,6 +347,7 @@
       container.innerHTML = '<div class="spinner"></div>';
       try {
         const result = await API.getAllBookings("chalet", status === "all" ? null : status, 0, 0);
+        console.log("Chalet bookings result:", result);
         if (result.success && result.bookings && result.bookings.length > 0) {
           let html = '<div class="admin-table-wrapper"><table class="admin-table">';
           html += `<thead><tr>

@@ -15,38 +15,46 @@
 const SPREADSHEET_ID = "1Wl7cx_1RyWl8AFw9iwrNtI2iReVKCYsONlGfszSLJkg";
 
 function doGet(e) {
-  const action = e.parameter.action;
-  switch (action) {
-    case "getAvailability":     return jsonResponse(getAvailability(e.parameter));
-    case "getDayDetails":       return jsonResponse(getDayDetails(e.parameter));
-    case "getPrice":            return jsonResponse(getPrice(e.parameter));
-    case "getAdminStats":       return jsonResponse(getAdminStats(e.parameter));
-    case "getAllBookings":       return jsonResponse(getAllBookings(e.parameter));
-    case "getPhotographers":    return jsonResponse(getPhotographers());
-    case "getPhotographerBookings": return jsonResponse(getPhotographerBookings(e.parameter));
-    case "getMyBookings":       return jsonResponse(getMyBookings(e.parameter));
-    case "getTestimonials":     return jsonResponse(getTestimonials());
-    case "exportBookings":      return jsonResponse(exportBookings(e.parameter));
-    case "exportAllData":       return jsonResponse(exportAllData());
-    case "getBackupHistory":    return jsonResponse(getBackupHistory());
-    default: return jsonResponse({ success: false, message: "Unknown action" });
+  try {
+    const action = e.parameter.action;
+    switch (action) {
+      case "getAvailability":     return jsonResponse(getAvailability(e.parameter));
+      case "getDayDetails":       return jsonResponse(getDayDetails(e.parameter));
+      case "getPrice":            return jsonResponse(getPrice(e.parameter));
+      case "getAdminStats":       return jsonResponse(getAdminStats(e.parameter));
+      case "getAllBookings":       return jsonResponse(getAllBookings(e.parameter));
+      case "getPhotographers":    return jsonResponse(getPhotographers());
+      case "getPhotographerBookings": return jsonResponse(getPhotographerBookings(e.parameter));
+      case "getMyBookings":       return jsonResponse(getMyBookings(e.parameter));
+      case "getTestimonials":     return jsonResponse(getTestimonials());
+      case "exportBookings":      return jsonResponse(exportBookings(e.parameter));
+      case "exportAllData":       return jsonResponse(exportAllData());
+      case "getBackupHistory":    return jsonResponse(getBackupHistory());
+      default: return jsonResponse({ success: false, message: "Unknown action: " + action });
+    }
+  } catch (err) {
+    return jsonResponse({ success: false, message: "Server error: " + err.message });
   }
 }
 
 function doPost(e) {
-  const data = JSON.parse(e.postData.contents);
-  const action = data.action;
-  switch (action) {
-    case "login":                   return jsonResponse(handleLogin(data));
-    case "submitChaletBooking":     return jsonResponse(submitChaletBooking(data));
-    case "submitPhotographyBooking": return jsonResponse(submitPhotographyBooking(data));
-    case "updateBookingStatus":     return jsonResponse(updateBookingStatus(data));
-    case "deleteBooking":           return jsonResponse(deleteBooking(data));
-    case "createPhotographer":      return jsonResponse(createPhotographer(data));
-    case "updateTestimonialStatus": return jsonResponse(updateTestimonialStatus(data));
-    case "deleteTestimonial":       return jsonResponse(deleteTestimonial(data));
-    case "createBackup":            return jsonResponse(createBackup());
-    default: return jsonResponse({ success: false, message: "Unknown action" });
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const action = data.action;
+    switch (action) {
+      case "login":                   return jsonResponse(handleLogin(data));
+      case "submitChaletBooking":     return jsonResponse(submitChaletBooking(data));
+      case "submitPhotographyBooking": return jsonResponse(submitPhotographyBooking(data));
+      case "updateBookingStatus":     return jsonResponse(updateBookingStatus(data));
+      case "deleteBooking":           return jsonResponse(deleteBooking(data));
+      case "createPhotographer":      return jsonResponse(createPhotographer(data));
+      case "updateTestimonialStatus": return jsonResponse(updateTestimonialStatus(data));
+      case "deleteTestimonial":       return jsonResponse(deleteTestimonial(data));
+      case "createBackup":            return jsonResponse(createBackup());
+      default: return jsonResponse({ success: false, message: "Unknown action: " + action });
+    }
+  } catch (err) {
+    return jsonResponse({ success: false, message: "Server error: " + err.message });
   }
 }
 
