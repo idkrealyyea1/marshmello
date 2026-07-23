@@ -59,7 +59,20 @@ const Auth = {
     return true;
   },
 
+  /* === TEMP TEST USERS (remove before production) === */
+  TEST_USERS: {
+    "admin":    { password: "admin123",    role: "admin",        fullName: "Admin User" },
+    "photographer": { password: "photo123", role: "photographer", fullName: "Test Photographer" }
+  },
+
   async login(username, password) {
+    /* TEMP: check local test users first (remove when GAS is live) */
+    if (this.TEST_USERS[username] && this.TEST_USERS[username].password === password) {
+      const user = this.TEST_USERS[username];
+      this.setSession({ username, role: user.role, fullName: user.fullName });
+      return { success: true, username, role: user.role, fullName: user.fullName };
+    }
+
     const result = await API.login(username, password);
     if (result.success) {
       this.setSession({
