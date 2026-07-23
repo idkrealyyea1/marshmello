@@ -12,7 +12,7 @@
  *   A:id B:customerName C:date D:hour E:status F:notes G:price H:createdAt I:customerName J:phone
  */
 
-const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
+const SPREADSHEET_ID = "1Wl7cx_1RyWl8AFw9iwrNtI2iReVKCYsONlGfszSLJkg";
 
 function doGet(e) {
   const action = e.parameter.action;
