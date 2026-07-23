@@ -9,10 +9,21 @@
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body class="admin-page">
+  <div class="splash-screen" id="splash">
+    <div class="splash-logo-m" id="splashLogo"></div>
+    <div class="splash-brand">MARSHMALLOW</div>
+    <div class="splash-sub">PHOTO CHALET & EVENTS</div>
+    <div class="splash-line"></div>
+    <div class="splash-dots">
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+    </div>
+  </div>
   <div class="admin-header">
     <div class="admin-header-inner">
       <div class="admin-header-left">
-        <img src="images/logo.png" alt="Marshmallow" onerror="this.style.display='none'">
+        <div class="m-logo" style="width:40px;height:40px;" id="adminLogo"></div>
         <h2 class="english-heading">Marshmallow Admin</h2>
       </div>
       <div class="admin-header-right">
@@ -242,6 +253,19 @@
 
     Lang.init();
     document.getElementById("adminName").textContent = Auth.getUsername();
+
+    // Splash screen
+    var splashLogo = document.getElementById("splashLogo");
+    if (splashLogo) splashLogo.innerHTML = getSplashLogoSVG();
+    var adminLogo = document.getElementById("adminLogo");
+    if (adminLogo) adminLogo.innerHTML = getMLogoSVG();
+    var splash = document.getElementById("splash");
+    if (splash) {
+      setTimeout(function() {
+        splash.classList.add("hide");
+        setTimeout(function() { splash.remove(); }, 700);
+      }, 2400);
+    }
 
     let currentFilter = { chalet: "all", photo: "all" };
 

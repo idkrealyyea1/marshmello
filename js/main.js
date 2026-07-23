@@ -2,6 +2,42 @@
 
 const WHATSAPP_NUMBER = "966XXXXXXXXX";
 
+/* --- SVG Logo --- */
+function getMLogoSVG(color) {
+  color = color || '#B8907E';
+  return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="mGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:${color};stop-opacity:1"/>
+        <stop offset="100%" style="stop-color:#C9A25D;stop-opacity:1"/>
+      </linearGradient>
+    </defs>
+    <rect x="10" y="10" width="100" height="100" rx="24" fill="url(#mGrad)" opacity="0.1"/>
+    <text x="60" y="82" text-anchor="middle" font-family="'Playfair Display',serif" font-size="68" font-weight="700" fill="url(#mGrad)">M</text>
+  </svg>`;
+}
+
+function getSplashLogoSVG() {
+  return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="spGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#B8907E;stop-opacity:1"/>
+        <stop offset="100%" style="stop-color:#C9A25D;stop-opacity:1"/>
+      </linearGradient>
+      <filter id="spGlow">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+    <rect x="8" y="8" width="104" height="104" rx="28" fill="none" stroke="url(#spGrad)" stroke-width="3" opacity="0.3"/>
+    <rect x="16" y="16" width="88" height="88" rx="20" fill="url(#spGrad)" opacity="0.08"/>
+    <text x="60" y="84" text-anchor="middle" font-family="'Playfair Display',serif" font-size="66" font-weight="700" fill="url(#spGrad)" filter="url(#spGlow)">M</text>
+  </svg>`;
+}
+
 /* --- Language System --- */
 const Lang = {
   current: "ar",
@@ -138,7 +174,7 @@ function renderHeader(activePage) {
   header.innerHTML = `
     <div class="header-inner">
       <a href="index.html" class="header-logo">
-        <img src="images/logo.png" alt="Marshmallow" onerror="this.style.display='none'">
+        <div class="m-logo">${getMLogoSVG()}</div>
         <div class="header-logo-text">
           <span class="brand-name english-heading">${t("brand_name")}</span>
           <span class="brand-sub">${t("brand_sub")}</span>
@@ -164,7 +200,7 @@ function renderFooter() {
 
   footer.innerHTML = `
     <div class="footer-inner">
-      <img src="images/logo.png" alt="Marshmallow" class="footer-logo" onerror="this.style.display='none'">
+      <div class="footer-logo-wrap">${getMLogoSVG()}</div>
       <div class="footer-brand english-heading">${t("brand_name")}</div>
       <div class="footer-tagline">${t("brand_sub")}</div>
       <div class="footer-links">
@@ -193,4 +229,16 @@ function initPage(activePage) {
       if (e.target === overlay) overlay.classList.remove("active");
     });
   });
+
+  // Splash screen
+  const splashLogo = document.getElementById("splashLogo");
+  if (splashLogo) splashLogo.innerHTML = getSplashLogoSVG();
+
+  const splash = document.getElementById("splash");
+  if (splash) {
+    setTimeout(() => {
+      splash.classList.add("hide");
+      setTimeout(() => splash.remove(), 700);
+    }, 2400);
+  }
 }

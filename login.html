@@ -8,9 +8,20 @@
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <div class="splash-screen" id="splash">
+    <div class="splash-logo-m" id="splashLogo"></div>
+    <div class="splash-brand">MARSHMALLOW</div>
+    <div class="splash-sub">PHOTO CHALET & EVENTS</div>
+    <div class="splash-line"></div>
+    <div class="splash-dots">
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+      <div class="splash-dot"></div>
+    </div>
+  </div>
   <div class="login-page">
     <div class="login-card">
-      <img src="images/logo.png" alt="Marshmallow" class="login-logo" onerror="this.style.display='none'">
+      <div class="m-logo" style="width:72px;height:72px;margin:0 auto 12px;" id="loginLogo"></div>
       <h2 class="login-title english-heading" data-t="brand_name">MARSHMALLOW</h2>
       <p class="login-subtitle" data-t="login_subtitle"> PHOTO CHALET & EVENTS</p>
 
@@ -50,6 +61,19 @@
   <script src="js/main.js"></script>
   <script>
     Lang.init();
+
+    // Splash screen
+    var splashLogo = document.getElementById("splashLogo");
+    if (splashLogo) splashLogo.innerHTML = getSplashLogoSVG();
+    var loginLogo = document.getElementById("loginLogo");
+    if (loginLogo) loginLogo.innerHTML = getMLogoSVG();
+    var splash = document.getElementById("splash");
+    if (splash) {
+      setTimeout(function() {
+        splash.classList.add("hide");
+        setTimeout(function() { splash.remove(); }, 700);
+      }, 2400);
+    }
 
     if (Auth.isLoggedIn()) {
       if (Auth.isAdmin()) {
