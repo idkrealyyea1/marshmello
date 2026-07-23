@@ -1,6 +1,6 @@
 /* ===== Google Apps Script API Layer ===== */
 
-const SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7ijn_gaYhZIK-gwPF4Wk55cwg5lCgN33AqV6rejvIriPyB00ci0YbqWASQsiIz_65/exec";
 
 const API = {
   async get(action, params = {}) {
