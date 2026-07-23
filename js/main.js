@@ -160,11 +160,6 @@ function renderHeader(activePage) {
   const navLinks = [];
 
   if (session) {
-    if (session.role === "admin") {
-      navLinks.push({ href: "admin.html", label: t("nav_admin"), key: "admin" });
-    } else {
-      navLinks.push({ href: "photography.html", label: t("nav_photography"), key: "photography" });
-    }
     navLinks.push({ href: "#", label: t("nav_logout"), key: "logout", onclick: "Auth.logout(); return false;" });
   }
 
@@ -212,9 +207,6 @@ function renderFooter() {
       </div>
       <div class="footer-divider"></div>
       <div class="footer-copyright">&copy; ${year} Marshmallow — Photo Chalet & Events. ${t("footer_rights")}.</div>
-      <div class="footer-staff-link">
-        <a href="login.html">${t("footer_staff")}</a>
-      </div>
     </div>`;
 }
 

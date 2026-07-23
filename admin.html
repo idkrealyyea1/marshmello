@@ -285,15 +285,14 @@
 
     // === Dashboard ===
     async function loadDashboard() {
-      const now = new Date();
       try {
-        const result = await API.getAdminStats(now.getFullYear(), now.getMonth() + 1);
+        const result = await API.getAdminStats(0, 0);
         if (result.success) {
           document.getElementById("statChaletTotal").textContent = result.chaletTotal || 0;
           document.getElementById("statPhotoTotal").textContent = result.photoTotal || 0;
           document.getElementById("statConfirmed").textContent = result.confirmed || 0;
           document.getElementById("statPending").textContent = result.pending || 0;
-          renderBarChart(result.dailyBookings || {}, now);
+          renderBarChart(result.dailyBookings || {}, new Date());
           renderTopPhotographers(result.topPhotographers || []);
         }
       } catch (err) {
@@ -344,11 +343,10 @@
 
     // === Chalet Bookings ===
     async function loadChaletBookings(status) {
-      const now = new Date();
       const container = document.getElementById("chaletBookingsTable");
       container.innerHTML = '<div class="spinner"></div>';
       try {
-        const result = await API.getAllBookings("chalet", status === "all" ? null : status, now.getFullYear(), now.getMonth() + 1);
+        const result = await API.getAllBookings("chalet", status === "all" ? null : status, 0, 0);
         if (result.success && result.bookings && result.bookings.length > 0) {
           let html = '<div class="admin-table-wrapper"><table class="admin-table">';
           html += `<thead><tr>
@@ -402,16 +400,15 @@
 
     // === Photo Bookings ===
     async function loadPhotoBookings(status) {
-      const now = new Date();
       const container = document.getElementById("photoBookingsTable");
       container.innerHTML = '<div class="spinner"></div>';
       try {
-        const result = await API.getAllBookings("photography", status === "all" ? null : status, now.getFullYear(), now.getMonth() + 1);
+        const result = await API.getAllBookings("photography", status === "all" ? null : status, 0, 0);
         if (result.success && result.bookings && result.bookings.length > 0) {
           let html = '<div class="admin-table-wrapper"><table class="admin-table">';
           html += `<thead><tr>
-            <th>${t("th_date")}</th><th>${t("th_time")}</th><th>${t("th_photographer")}</th>
-            <th>${t("th_price")}</th><th>${t("th_status")}</th><th>${t("th_notes")}</th><th>${t("th_actions")}</th>
+            <th>${t("th_date")}</th><th>${t("th_time")}</th><th>${t("th_customer")}</th>
+            <th>${t("th_phone")}</th><th>${t("th_price")}</th><th>${t("th_status")}</th><th>${t("th_notes")}</th><th>${t("th_actions")}</th>
           </tr></thead><tbody>`;
 
           result.bookings.forEach(b => {
@@ -421,7 +418,8 @@
             html += `<tr>
               <td>${b.date}</td>
               <td style="font-family:var(--font-english-body)">${b.hour}</td>
-              <td>${b.photographerUsername}</td>
+              <td>${b.customerName || b.photographerUsername || '-'}</td>
+              <td style="font-family:var(--font-english-body);direction:ltr;text-align:right">${b.phone || '-'}</td>
               <td style="font-family:var(--font-english-body)">${priceText}</td>
               <td><span class="status-badge ${statusClass}"><span class="dot"></span>${statusText}</span></td>
               <td>${b.notes || '-'}</td>
@@ -692,6 +690,8 @@
 
     // Load dashboard on start
     loadDashboard();
+    loadChaletBookings();
+    loadPhotoBookings();
   </script>
 </body>
 </html>

@@ -7,6 +7,9 @@
  * Sheets:
  *   Users, ChaletBookings, PhotographyBookings, Settings,
  *   Pricing, Testimonials, Backups
+ *
+ * PhotographyBookings columns:
+ *   A:id B:customerName C:date D:hour E:status F:notes G:price H:createdAt I:customerName J:phone
  */
 
 const SPREADSHEET_ID = "YOUR_SPREADSHEET_ID_HERE";
@@ -122,7 +125,7 @@ function getAvailability(params) {
   const prefix = `${parseInt(year)}-${String(parseInt(month)).padStart(2, "0")}`;
   const rows = sheet.getDataRange().getValues();
   const dayStatus = {};
-  const statusCol = type === "chalet" ? 7 : 5;
+  const statusCol = type === "chalet" ? 7 : 4;
 
   for (let i = 1; i < rows.length; i++) {
     const date = String(rows[i][2]);
@@ -150,7 +153,7 @@ function getDayDetails(params) {
   if (!sheet) return { success: true, bookedSlots: [] };
   const rows = sheet.getDataRange().getValues();
   const bookedSlots = [];
-  const statusCol = type === "chalet" ? 7 : 5;
+  const statusCol = type === "chalet" ? 7 : 4;
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][2]) === date && String(rows[i][statusCol]) !== "cancelled") {
       bookedSlots.push(String(rows[i][3]));
@@ -180,13 +183,13 @@ function submitPhotographyBooking(data) {
   if (!sheet) return { success: false, message: "System error" };
   const rows = sheet.getDataRange().getValues();
   for (let i = 1; i < rows.length; i++) {
-    if (String(rows[i][2]) === data.date && String(rows[i][3]) === data.hour && String(rows[i][5]) !== "cancelled") {
+    if (String(rows[i][2]) === data.date && String(rows[i][3]) === data.hour && String(rows[i][4]) !== "cancelled") {
       return { success: false, message: "Slot already booked" };
     }
   }
   const id = "PB" + new Date().getTime();
-  sheet.appendRow([id, data.photographerUsername, data.date, data.hour, "pending",
-    data.notes || "", data.price || 0, new Date().toISOString()]);
+  sheet.appendRow([id, data.customerName || "", data.date, data.hour, "pending",
+    data.notes || "", data.price || 0, new Date().toISOString(), data.customerName || "", data.phone || ""]);
   return { success: true, id };
 }
 
@@ -197,7 +200,7 @@ function updateBookingStatus(data) {
   const sheet = getSheet(sheetName);
   if (!sheet) return { success: false, message: "System error" };
   const rows = sheet.getDataRange().getValues();
-  const statusCol = sheetName === "PhotographyBookings" ? 5 : 7;
+  const statusCol = sheetName === "PhotographyBookings" ? 4 : 7;
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0]) === bookingId) {
       sheet.getRange(i + 1, statusCol + 1).setValue(newStatus);
@@ -225,7 +228,8 @@ function deleteBooking(data) {
 // ===================== STATS =====================
 function getAdminStats(params) {
   const { year, month } = params;
-  const prefix = `${parseInt(year)}-${String(parseInt(month)).padStart(2, "0")}`;
+  const useFilter = parseInt(year) > 0 && parseInt(month) > 0;
+  const prefix = useFilter ? `${parseInt(year)}-${String(parseInt(month)).padStart(2, "0")}` : "";
   let chaletTotal = 0, photoTotal = 0, confirmed = 0, pending = 0;
   const dailyBookings = {};
   const photographerCounts = {};
@@ -236,7 +240,7 @@ function getAdminStats(params) {
     for (let i = 1; i < rows.length; i++) {
       const date = String(rows[i][2]);
       const status = String(rows[i][7]);
-      if (date.startsWith(prefix)) {
+      if (!useFilter || date.startsWith(prefix)) {
         chaletTotal++;
         if (status === "confirmed") confirmed++;
         if (status === "pending") pending++;
@@ -251,9 +255,9 @@ function getAdminStats(params) {
     const rows = photoSheet.getDataRange().getValues();
     for (let i = 1; i < rows.length; i++) {
       const date = String(rows[i][2]);
-      const status = String(rows[i][5]);
+      const status = String(rows[i][4]);
       const username = String(rows[i][1]);
-      if (date.startsWith(prefix)) {
+      if (!useFilter || date.startsWith(prefix)) {
         photoTotal++;
         if (status === "confirmed") confirmed++;
         if (status === "pending") pending++;
@@ -276,20 +280,22 @@ function getAllBookings(params) {
   const sheetName = type === "photography" ? "PhotographyBookings" : "ChaletBookings";
   const sheet = getSheet(sheetName);
   if (!sheet) return { success: true, bookings: [] };
-  const prefix = `${parseInt(year)}-${String(parseInt(month)).padStart(2, "0")}`;
+  const useFilter = parseInt(year) > 0 && parseInt(month) > 0;
+  const prefix = useFilter ? `${parseInt(year)}-${String(parseInt(month)).padStart(2, "0")}` : "";
   const rows = sheet.getDataRange().getValues();
   const bookings = [];
 
   for (let i = 1; i < rows.length; i++) {
     const date = String(rows[i][2]);
-    if (!date.startsWith(prefix)) continue;
+    if (useFilter && !date.startsWith(prefix)) continue;
     if (type === "photography") {
-      const bStatus = String(rows[i][5]);
+      const bStatus = String(rows[i][4]);
       if (status && bStatus !== status) continue;
       bookings.push({
-        id: rows[i][0], photographerUsername: rows[i][1], date,
+        id: rows[i][0], customerName: rows[i][1] || rows[i][8] || "", date,
         hour: String(rows[i][3]), status: bStatus,
-        notes: rows[i][6] || "", price: rows[i][7] || 0
+        notes: rows[i][5] || "", price: rows[i][6] || 0,
+        phone: rows[i][9] || ""
       });
     } else {
       const bStatus = String(rows[i][7]);
@@ -328,7 +334,7 @@ function getPhotographerBookings(params) {
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][1]) === username && String(rows[i][2]).startsWith(prefix)) {
       bookings.push({ id: rows[i][0], date: String(rows[i][2]), hour: String(rows[i][3]),
-        status: String(rows[i][5]), notes: rows[i][6] || "", price: rows[i][7] || 0 });
+        status: String(rows[i][4]), notes: rows[i][5] || "", price: rows[i][6] || 0 });
     }
   }
   return { success: true, bookings };
@@ -344,7 +350,7 @@ function getMyBookings(params) {
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][1]) === username && String(rows[i][2]) >= today) {
       bookings.push({ id: rows[i][0], date: String(rows[i][2]), hour: String(rows[i][3]),
-        status: String(rows[i][5]), notes: rows[i][6] || "", price: rows[i][7] || 0 });
+        status: String(rows[i][4]), notes: rows[i][5] || "", price: rows[i][6] || 0 });
     }
   }
   bookings.sort((a, b) => a.date.localeCompare(b.date) || a.hour.localeCompare(b.hour));
@@ -416,8 +422,9 @@ function exportBookings(params) {
   const data = [];
   for (let i = 1; i < rows.length; i++) {
     if (type === "photography") {
-      data.push({ id: rows[i][0], photographer: rows[i][1], date: rows[i][2],
-        hour: rows[i][3], status: rows[i][4], notes: rows[i][5], price: rows[i][6] || 0 });
+      data.push({ id: rows[i][0], customerName: rows[i][1], date: rows[i][2],
+        hour: rows[i][3], status: rows[i][4], notes: rows[i][5], price: rows[i][6] || 0,
+        phone: rows[i][9] || "" });
     } else {
       data.push({ id: rows[i][0], type: rows[i][1], date: rows[i][2], hour: rows[i][3],
         customer: rows[i][4], phone: rows[i][5], guests: rows[i][6],

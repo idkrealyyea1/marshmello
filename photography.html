@@ -22,20 +22,7 @@
 
   <header class="site-header"></header>
 
-  <!-- Not logged in -->
-  <main class="page-container" id="loginRequired">
-    <div class="section-header">
-      <h1 data-t="photo_title">حجز جلسة تصوير</h1>
-      <div class="section-line"></div>
-      <p data-t="photo_login_req">الرجاء تسجيل الدخول للمتابعة</p>
-    </div>
-    <div class="text-center">
-      <a href="login.html" class="btn btn-primary btn-lg" data-t="photo_login_btn">تسجيل الدخول</a>
-    </div>
-  </main>
-
-  <!-- Logged in -->
-  <main class="page-container hidden" id="photographerPanel">
+  <main class="page-container">
     <div class="section-header">
       <h1 data-t="photo_title">حجز جلسة تصوير</h1>
       <div class="section-line"></div>
@@ -46,13 +33,6 @@
 
     <div class="calendar-wrapper">
       <div id="photoCalendar"></div>
-    </div>
-
-    <div class="admin-panel mt-3">
-      <div class="admin-panel-header">
-        <h3 data-t="photo_my_bookings">حجوزاتي القادمة</h3>
-      </div>
-      <div id="myBookingsContainer"><div class="spinner"></div></div>
     </div>
 
     <!-- Gallery -->
@@ -80,11 +60,19 @@
         <div id="photoBookingForm" class="hidden">
           <div style="width:60px;height:1px;background:var(--gold);margin:16px auto;"></div>
           <div class="form-group">
+            <label class="form-label" data-t="modal_full_name">الاسم الكامل</label>
+            <input type="text" class="form-input" id="photoCustomerName" data-t-ph="modal_full_name_ph" placeholder="أدخل اسمك الكامل">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-t="modal_phone">رقم الهاتف / واتساب</label>
+            <input type="tel" class="form-input" id="photoCustomerPhone" data-t-ph="modal_phone_ph" placeholder="05XXXXXXXX">
+          </div>
+          <div class="form-group">
             <label class="form-label" data-t="modal_notes_photo">ملاحظات</label>
             <textarea class="form-input" id="photoNotes" data-t-ph="modal_notes_photo_ph" placeholder="أي ملاحظات..."></textarea>
           </div>
           <button class="btn btn-primary btn-block" id="submitPhotoBtn" onclick="submitPhotoBooking()">
-            <span data-t="modal_confirm">تأكيد الحجز</span>
+            <span data-t="photo_request_btn">إرسال الطلب</span>
           </button>
         </div>
       </div>
@@ -97,9 +85,13 @@
       <div class="modal-body">
         <div class="booking-confirmation">
           <div class="icon">📸</div>
-          <h3 data-t="confirm_photo_title">تم حجز جلسة التصوير!</h3>
-          <p data-t="confirm_photo_msg">تم تسجيل حجزك بنجاح.</p>
-          <button class="btn btn-secondary" onclick="hideModal('photoConfirmModal')">
+          <h3 data-t="photo_request_title">تم إرسال طلب الحجز!</h3>
+          <p data-t="photo_request_msg">تم استلام طلبك بنجاح. سيتم التواصل معك من قبل الإدارة لتأكيد الموعد.</p>
+          <a class="btn btn-success" id="photoConfirmWhatsApp" href="#" target="_blank">
+            <span data-t="confirm_wa">تأكيد عبر واتساب</span>
+          </a>
+          <br>
+          <button class="btn btn-secondary mt-2" onclick="hideModal('photoConfirmModal')">
             <span data-t="confirm_close">إغلاق</span>
           </button>
         </div>
@@ -128,18 +120,12 @@
     let photoCalendar = null;
     let photoCurrentPrice = 0;
 
-    if (Auth.isLoggedIn() && Auth.isPhotographer()) {
-      document.getElementById("loginRequired").classList.add("hidden");
-      document.getElementById("photographerPanel").classList.remove("hidden");
-
-      photoCalendar = createCalendar({
-        containerId: "photoCalendar",
-        type: "photography",
-        onDayClick: openPhotoDayModal
-      });
-      createGallery({ containerId: "photoGallery", category: "photography", columns: 3 });
-      loadMyBookings();
-    }
+    photoCalendar = createCalendar({
+      containerId: "photoCalendar",
+      type: "photography",
+      onDayClick: openPhotoDayModal
+    });
+    createGallery({ containerId: "photoGallery", category: "photography", columns: 3 });
 
     async function openPhotoDayModal(date) {
       photoSelectedDate = date;
@@ -201,51 +187,37 @@
     }
 
     async function submitPhotoBooking() {
+      const name = document.getElementById("photoCustomerName").value.trim();
+      const phone = document.getElementById("photoCustomerPhone").value.trim();
+      const notes = document.getElementById("photoNotes").value.trim();
+
+      if (!name || !phone) { showAlert("photoAlert", "error", t("modal_error_fill")); return; }
       if (!photoSelectedDate || !photoSelectedSlot) { showAlert("photoAlert", "error", t("modal_error_select")); return; }
+
       const btn = document.getElementById("submitPhotoBtn");
       btn.disabled = true;
       btn.querySelector("span").textContent = t("modal_sending");
 
       try {
         const result = await API.submitPhotographyBooking({
-          photographerUsername: Auth.getUsername(), date: photoSelectedDate,
-          hour: photoSelectedSlot, notes: document.getElementById("photoNotes").value.trim(),
-          price: photoCurrentPrice
+          customerName: name, phone: phone,
+          date: photoSelectedDate, hour: photoSelectedSlot,
+          notes: notes, price: photoCurrentPrice
         });
         if (result.success) {
           hideModal("photoDayModal");
+          const waMsg = Lang.isAr()
+            ? `مرحبًا، أريد حجز جلسة تصوير:\nالتاريخ: ${photoSelectedDate}\nالوقت: ${photoSelectedSlot}\nالاسم: ${name}\nالهاتف: ${phone}`
+            : `Hello, I want to book a photo session:\nDate: ${photoSelectedDate}\nTime: ${photoSelectedSlot}\nName: ${name}\nPhone: ${phone}`;
+          document.getElementById("photoConfirmWhatsApp").href = getWhatsAppLink(waMsg);
           showModal("photoConfirmModal");
-          photoCalendar.refresh();
-          loadMyBookings();
+          if (photoCalendar && photoCalendar.refresh) photoCalendar.refresh();
         } else {
           showAlert("photoAlert", "error", result.message || t("alert_error"));
         }
       } catch (err) { showAlert("photoAlert", "error", t("modal_error_server")); }
       btn.disabled = false;
-      btn.querySelector("span").textContent = t("modal_confirm");
-    }
-
-    async function loadMyBookings() {
-      const container = document.getElementById("myBookingsContainer");
-      try {
-        const result = await API.getMyBookings(Auth.getUsername());
-        if (result.success && result.bookings && result.bookings.length > 0) {
-          let html = '<div class="admin-table-wrapper"><table class="admin-table">';
-          html += `<thead><tr><th>${t("th_date")}</th><th>${t("th_time")}</th><th>${t("th_price")}</th><th>${t("th_status")}</th><th>${t("th_notes")}</th></tr></thead><tbody>`;
-          result.bookings.forEach(b => {
-            const priceText = b.price ? `${b.price} ${t("price_sar")}` : '-';
-            html += `<tr><td>${b.date}</td><td>${b.hour}</td><td>${priceText}</td>
-              <td><span class="status-badge ${b.status}"><span class="dot"></span>${t("status_" + b.status)}</span></td>
-              <td>${b.notes || '-'}</td></tr>`;
-          });
-          html += '</tbody></table></div>';
-          container.innerHTML = html;
-        } else {
-          container.innerHTML = `<p class="text-center" style="opacity:0.5;padding:20px;">${t("photo_no_bookings")}</p>`;
-        }
-      } catch (err) {
-        container.innerHTML = `<p class="text-center" style="opacity:0.5;padding:20px;">${t("alert_server")}</p>`;
-      }
+      btn.querySelector("span").textContent = t("photo_request_btn");
     }
   </script>
 </body>

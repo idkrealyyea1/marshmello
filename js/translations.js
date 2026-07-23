@@ -38,6 +38,10 @@ const T = {
   // === Photography Booking ===
   "photo_title":       { ar: "حجز جلسة تصوير",        en: "Photo Session Booking" },
   "photo_subtitle":    { ar: "اختر اليوم والوقت المناسب لجلستك", en: "Choose your preferred day and time" },
+  "photo_request_btn": { ar: "إرسال الطلب",            en: "Submit Request" },
+  "photo_request_title":{ ar: "تم إرسال طلب الحجز!",   en: "Request Submitted!" },
+  "photo_request_msg": { ar: "تم استلام طلبك بنجاح. سيتم التواصل معك من قبل الإدارة لتأكيد الموعد.",
+                         en: "Your request has been received. Our team will contact you to confirm the appointment." },
   "photo_login_req":   { ar: "الرجاء تسجيل الدخول للمتابعة", en: "Please log in to continue" },
   "photo_login_btn":   { ar: "تسجيل الدخول",          en: "Log In" },
   "photo_my_bookings": { ar: "حجوزاتي القادمة",        en: "My Upcoming Bookings" },
