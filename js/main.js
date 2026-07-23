@@ -3,38 +3,38 @@
 const WHATSAPP_NUMBER = "966XXXXXXXXX";
 
 /* --- SVG Logo --- */
+let _logoIdCounter = 0;
+
 function getMLogoSVG(color) {
   color = color || '#B8907E';
+  const uid = 'ml' + (++_logoIdCounter);
   return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="mGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:${color};stop-opacity:1"/>
-        <stop offset="100%" style="stop-color:#C9A25D;stop-opacity:1"/>
+      <linearGradient id="${uid}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#B8907E"/>
+        <stop offset="100%" stop-color="#C9A25D"/>
       </linearGradient>
     </defs>
-    <rect x="10" y="10" width="100" height="100" rx="24" fill="url(#mGrad)" opacity="0.1"/>
-    <text x="60" y="82" text-anchor="middle" font-family="'Playfair Display',serif" font-size="68" font-weight="700" fill="url(#mGrad)">M</text>
+    <rect x="10" y="10" width="100" height="100" rx="24" fill="url(#${uid})" opacity="0.12"/>
+    <text x="60" y="82" text-anchor="middle" font-family="'Playfair Display',serif" font-size="68" font-weight="700" fill="url(#${uid})">M</text>
   </svg>`;
 }
 
 function getSplashLogoSVG() {
   return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="spGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" style="stop-color:#B8907E;stop-opacity:1"/>
-        <stop offset="100%" style="stop-color:#C9A25D;stop-opacity:1"/>
+      <linearGradient id="spGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#B8907E"/>
+        <stop offset="100%" stop-color="#C9A25D"/>
       </linearGradient>
-      <filter id="spGlow">
+      <filter id="spGlow1">
         <feGaussianBlur stdDeviation="3" result="blur"/>
-        <feMerge>
-          <feMergeNode in="blur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
     </defs>
-    <rect x="8" y="8" width="104" height="104" rx="28" fill="none" stroke="url(#spGrad)" stroke-width="3" opacity="0.3"/>
-    <rect x="16" y="16" width="88" height="88" rx="20" fill="url(#spGrad)" opacity="0.08"/>
-    <text x="60" y="84" text-anchor="middle" font-family="'Playfair Display',serif" font-size="66" font-weight="700" fill="url(#spGrad)" filter="url(#spGlow)">M</text>
+    <rect x="8" y="8" width="104" height="104" rx="28" fill="none" stroke="url(#spGrad1)" stroke-width="3" opacity="0.3"/>
+    <rect x="16" y="16" width="88" height="88" rx="20" fill="url(#spGrad1)" opacity="0.08"/>
+    <text x="60" y="84" text-anchor="middle" font-family="'Playfair Display',serif" font-size="66" font-weight="700" fill="url(#spGrad1)" filter="url(#spGlow1)">M</text>
   </svg>`;
 }
 
